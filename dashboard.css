@@ -576,6 +576,7 @@ textarea, input[type="text"] {
 html[data-theme="light"] .options-put { fill:#5269ad; background:#5269ad; }
 .options-flip { fill:var(--amber); background:var(--amber); }
 .options-trigger { fill:var(--fail); background:var(--fail); }
+.options-pain { fill:var(--text-dim); background:var(--text-dim); }
 .options-svg-wrap { overflow-x:auto; }
 .options-svg-wrap svg { display:block; width:100%; min-width:420px; max-height:460px; }
 .options-gridline { stroke:var(--border); stroke-width:1; }
@@ -588,6 +589,46 @@ html[data-theme="light"] .options-put { fill:#5269ad; background:#5269ad; }
 .options-chart-readout { min-height:34px; font:11px/1.6 var(--mono); color:var(--text); margin:14px 0 4px; }
 .options-detail-heading { font-size:13px; font-weight:500; color:var(--text-dim); margin-top:10px; }
 @media(max-width:760px) { .options-overview { grid-template-columns:1fr; } .options-chart-card { padding:16px; } }
+
+/* (C) Regime, dealer pressure and explainable levels from one selected model. */
+.gex-source-picker { display:flex; align-items:center; gap:10px; color:var(--text-dim); font-size:11px; margin-right:auto; }
+.gex-source-picker select { padding:8px; font:12px var(--ui,-apple-system,sans-serif); border-radius:6px; }
+.gex-source-line { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.gex-status { border:1px solid var(--border-bright); border-radius:20px; padding:3px 9px; font-size:10px; text-transform:uppercase; color:var(--text-dim); }
+.gex-status.stale { color:var(--amber); border-color:var(--amber); }
+.gex-regime-cards strong { font:500 24px var(--ui,-apple-system,sans-serif); letter-spacing:-.025em; }
+.gex-positive { color:var(--ok); }
+.gex-negative { color:var(--fail); }
+.gex-context-note { padding:18px 22px; border-left:2px solid var(--accent); background:var(--accent-glow); border-radius:0 8px 8px 0; }
+.gex-context-note p { line-height:1.6; margin:7px 0 0; }
+.gex-section-heading { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px; margin-top:8px; }
+.gex-section-heading h3 { font:500 17px var(--ui,-apple-system,sans-serif); }
+.gex-pressure-value { display:block; margin:16px 0 12px; font:500 23px var(--mono); }
+.gex-pressure-track { height:7px; background:var(--panel-alt); border-radius:4px; position:relative; }
+.gex-pressure-track::after { content:""; position:absolute; left:50%; top:-3px; height:13px; width:1px; background:var(--text-dim); }
+.gex-pressure-track span { position:absolute; height:7px; border-radius:4px; }
+.gex-pressure-positive { background:var(--ok); }
+.gex-pressure-negative { background:var(--fail); }
+.gex-pressure-labels { display:flex; justify-content:space-between; gap:8px; color:var(--text-dim); font-size:9px; margin:8px 0 14px; }
+.gex-level-row { border-top:1px solid var(--border); }
+.gex-level-row summary { display:flex; align-items:center; gap:15px; padding:15px 0; cursor:pointer; list-style:none; }
+.gex-level-row summary::-webkit-details-marker { display:none; }
+.gex-level-row summary::after { content:"+"; color:var(--text-dim); font:14px var(--mono); }
+.gex-level-row[open] summary::after { content:"−"; }
+.gex-level-kind { width:8px; height:8px; flex-shrink:0; border-radius:3px; }
+.gex-level-label { flex:1; font:500 13px var(--ui,-apple-system,sans-serif); }
+.gex-strength-track { display:block; width:min(180px,100%); height:3px; margin-top:9px; background:var(--panel-alt); }
+.gex-strength-track i { display:block; height:3px; }
+.gex-level-price { font:500 17px var(--mono); text-align:right; }
+.gex-level-price small { display:block; color:var(--text-dim); font-size:10px; margin-top:4px; }
+.gex-strength-value { width:65px; font:10px var(--mono); text-align:right; color:var(--text-dim); }
+.gex-level-explainer { margin:0 0 16px 23px; font-size:12px; line-height:1.7; color:var(--text-dim); }
+.gex-level-explainer p { margin:0 0 5px; }
+.gex-level-spot { display:flex; justify-content:space-between; padding:13px 15px; border:1px dashed var(--accent); background:var(--accent-glow); border-radius:6px; color:var(--accent); margin:3px 0; }
+.gex-comparison > summary { cursor:pointer; font-size:13px; color:var(--text-dim); padding:15px 0; }
+.gex-map-controls { margin-bottom:15px; }
+.gex-comparison .gex-groups { margin-top:15px; }
+@media(max-width:760px) { .gex-source-picker { flex-wrap:wrap; } .gex-strength-value { width:48px; } }
 
 /* (C) Accounts grow to their content; the dashboard document owns scrolling. */
 .tracker-page { width: 100%; }

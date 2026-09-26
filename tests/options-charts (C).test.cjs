@@ -2,6 +2,35 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {flowModel,gexModel,flowHtml,gexHtml}=require('../options-charts (C).js');
+const {regimeModel,regimeHtml}=require('../options-charts (C).js');
+
+test('regime uses the explicitly selected model, including zero and missing gamma',()=>{
+  const gex={oi_gex:{status:'healthy',spot:100,total_gex:20,total_dex:40,call_wall:105,put_wall:95},sf_gex:{status:'unavailable',total_gex:-50}};
+  assert.equal(regimeModel(gex,'oi').regime,'Long gamma');
+  assert.equal(regimeModel(gex,'sf').usable,false);
+  assert.equal(regimeModel({oi_gex:{status:'healthy',total_gex:0}},'oi').regime,'Neutral gamma');
+  assert.equal(regimeModel({oi_gex:{status:'healthy'}},'oi').regime,'Unknown gamma');
+});
+test('regime levels are sorted by price, strengths are per side, support stays below spot',()=>{
+  const gex={oi_gex:{status:'healthy',spot:100,total_gex:10,call_wall:105,put_wall:95,by_strike:[{strike:105,call_gex:100,put_gex:-1,net_gex:99},{strike:110,call_gex:50,put_gex:0,net_gex:50},{strike:95,call_gex:1,put_gex:-10,net_gex:-9},{strike:97,call_gex:1,put_gex:-5,net_gex:-4},{strike:103,call_gex:0,put_gex:-6,net_gex:-6}]}};
+  const m=regimeModel(gex,'oi');
+  assert.equal(m.levels.find(l=>l.label==='Put wall').strength,100);
+  assert.equal(m.levels.find(l=>l.label==='Call wall').strength,100);
+  assert.equal(m.levels.find(l=>l.label==='Support 1').price,97);
+  assert.equal(m.levels.find(l=>l.label==='Resistance 1').price,110);
+  assert.deepEqual(m.levels.map(l=>l.price),[110,105,97,95]);
+});
+test('sentiment preserves missing values, sums the chosen model, and labels stale data',()=>{
+  const m=regimeModel({oi_gex:{status:'healthy',stale:true,spot:100,total_gex:-2,total_dex:0,rows:[{vex:10,charmex:null},{vex:-5,charmex:null}]}},'oi');
+  assert.equal(m.stale,true); assert.equal(m.regime,'Short gamma');
+  assert.equal(m.pressures.find(p=>p.key==='vanna').net,5);
+  assert.equal(m.pressures.find(p=>p.key==='charm').net,null);
+  assert.equal(m.pressures.find(p=>p.key==='delta').net,0);
+});
+test('unavailable source never supplies sentiment from another source',()=>{
+  const html=regimeHtml({oi_gex:{status:'healthy',total_gex:10},sf_gex:{status:'unavailable',total_gex:-10,detail:'<script>alert(1)</script>'}},'sf');
+  assert.match(html,/unavailable/); assert.doesNotMatch(html,/Long gamma|Short gamma|<script>/);
+});
 
 test('volume and premium use independent totals and a numeric strike order without mutating input',()=>{
   const flow={spot:101,rows:[{strike:105,call_vol:10,put_vol:30,call_prem:3000,put_prem:1000},{strike:99,call_vol:30,put_vol:10,call_prem:1000,put_prem:9000}]};

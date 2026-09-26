@@ -140,6 +140,7 @@
     gex: null, // null (never loaded) | {ok:true, spot, sf_gex, oi_gex, eoi_gex, vanna_walls, charm_zones, ...} | {ok:false, error} - FreeFlow dealer GEX/vanna/charm
     gexLoading: false,
     gexAuto: true, // re-pull every GEX_REFRESH_MS while the Flow page is open - independent of the ladder's flowAuto
+    gexSource: "oi", // Explicit basis for regime and sentiment; never silently substitute models.
     // Per-group visibility, mirroring the "GEX Walls (C)" Pine indicator's own toggles (design.md decision 8):
     // the three GEX methodologies get separate switches on purpose, not one combined "GEX" toggle.
     gexShow: { sf: true, oi: true, eoi: false, vanna: true, charm: true },
@@ -2332,11 +2333,7 @@
       <button type="button" class="jrn-source-tab${state.gexShow[key] ? " active" : ""}" data-gex-toggle="${key}">${label}</button>`;
     const controls = `
       <div class="flow-controls">
-        ${groupToggle("sf", "Signed-Flow")}
-        ${groupToggle("oi", "Settlement-OI")}
-        ${groupToggle("eoi", "Estimated-OI")}
-        ${groupToggle("vanna", "Vanna")}
-        ${groupToggle("charm", "Charm")}
+        <label class="gex-source-picker">Regime source <select id="gex-source" aria-label="Regime source">${GEX_GROUPS.map(g=>`<option value="${g.key}" ${state.gexSource===g.key ? "selected" : ""}>${g.label}</option>`).join("")}</select></label>
         <button type="button" class="jrn-source-tab${state.gexAuto ? " active" : ""}" data-gex-auto>Auto ${GEX_REFRESH_MS / 1000}s</button>
         <button type="button" class="jrn-source-tab${state.gexPush.enabled ? " active" : ""}" data-gex-push title="Rewrite the GEX Walls chart study's Data input every minute through TradingView Desktop">Push to chart</button>
         <button type="button" class="btn" data-gex-refresh ${state.gexLoading ? "disabled" : ""}>${state.gexLoading ? "Pulling…" : "Refresh"}</button>
@@ -2350,6 +2347,9 @@
       : !gex.ok
         ? `<p class="pane-empty">${escapeHtml(gex.error)}</p>`
         : `
+          ${window.IcarusOptionsCharts.regimeHtml(gex, state.gexSource)}
+          <details class="gex-comparison" data-gex-disclosure="comparison"><summary>Compare methodologies & level map</summary>
+          <div class="flow-controls gex-map-controls">${groupToggle("sf", "Signed-Flow")}${groupToggle("oi", "Settlement-OI")}${groupToggle("eoi", "Estimated-OI")}${groupToggle("vanna", "Vanna")}${groupToggle("charm", "Charm")}</div>
           ${window.IcarusOptionsCharts.gexHtml(gex, state.gexShow)}
           <h3 class="options-detail-heading">Methodology details</h3>
           <div class="gex-groups">
@@ -2362,13 +2362,13 @@
               { key: "positive_zone", label: "+ zone" },
               { key: "negative_zone", label: "− zone" },
             ])}
-          </div>`;
+          </div></details>`;
 
     const subtitle = gex && gex.ok ? `${gex.underlying} ${gex.exp} · spot ${gex.spot ? gex.spot.toFixed(2) : "–"}` : "FreeFlow - dealer gamma/vanna/charm exposure";
 
     return `
       <div class="page" data-gex-page>
-        ${pageHeaderHtml(gexIcon(30), "GEX Walls", subtitle)}
+        ${pageHeaderHtml(gexIcon(30), "GEX Regimes & Levels", subtitle)}
         ${controls}
         ${body}
         <p class="flow-note">Dealer gamma exposure (3 methodologies), vanna walls, and charm zones from FreeFlow - separate pull, separate failure mode from the Options Flow page's LSE ladder.</p>
@@ -2423,7 +2423,9 @@
   function renderGexKeepingScroll() {
     const page = app.querySelector("[data-gex-page]");
     const scrollTop = page ? window.scrollY : null;
+    const expanded = new Set([...app.querySelectorAll("details[data-gex-disclosure][open]")].map(el=>el.dataset.gexDisclosure));
     render();
+    app.querySelectorAll("details[data-gex-disclosure]").forEach(el=>{el.open=expanded.has(el.dataset.gexDisclosure);});
     const fresh = app.querySelector("[data-gex-page]");
     if (fresh && scrollTop !== null) window.scrollTo(0, scrollTop);
   }
@@ -2971,6 +2973,11 @@
         state.gexShow[key] = !state.gexShow[key];
         renderGexKeepingScroll();
       });
+    });
+    const gexSource = app.querySelector("#gex-source");
+    if (gexSource) gexSource.addEventListener("change", event => {
+      state.gexSource = event.target.value;
+      renderGexKeepingScroll();
     });
     const gexAutoBtn = app.querySelector("[data-gex-auto]");
     if (gexAutoBtn) {

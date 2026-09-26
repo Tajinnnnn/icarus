@@ -1,0 +1,53 @@
+Icarus Source-Available License
+Version 1.0, 26 September 2026
+
+Copyright (c) 2026 Tajin. All rights reserved.
+
+Icarus (the "Software") is the original work and product of the copyright
+holder. The source code is published so that it can be read, studied, and run
+for personal use. It is not open-source software.
+
+1. Permitted use
+   You may:
+   a. view, download, and study the source code;
+   b. build and run the Software on devices you own or control, for your own
+      personal, non-commercial use;
+   c. modify the Software for your own personal, non-commercial use.
+
+2. Restrictions
+   Without prior written permission from the copyright holder, you may not:
+   a. redistribute, publish, sublicense, sell, rent, lease, or otherwise make
+      the Software, or any modified version of it, available to any third
+      party, in source or binary form;
+   b. use the Software, or any part of it, in a commercial product or service,
+      or to provide a service to others;
+   c. remove or alter this license, the copyright notice, or any attribution
+      contained in the Software;
+   d. use the name "Icarus" or the copyright holder's name to endorse or
+      promote products derived from the Software.
+
+3. Contributions
+   Any suggestion, bug report, or code you voluntarily submit to the copyright
+   holder for inclusion in the Software may be used by the copyright holder
+   without restriction and without obligation to you.
+
+4. Third-party components
+   Files under the "vendor" directory are the work of their respective authors
+   and are provided under their own licenses, which are included alongside
+   them. This license does not apply to those components.
+
+5. Termination
+   This license terminates automatically if you breach any of its terms. On
+   termination you must stop using the Software and destroy all copies of it in
+   your possession.
+
+6. No warranty
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
+   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+For permission beyond the scope of this license, contact the copyright holder.

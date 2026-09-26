@@ -1,0 +1,4 @@
+# (C) Public default: no personal crews or paths.
+# Put your registry in the app data folder as crews.local.yaml,
+# or set ICARUS_CREWS_FILE. See crews.example (C).yaml.
+crews: []

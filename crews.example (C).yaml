@@ -1,0 +1,16 @@
+# (C) Copy this to your app data directory as crews.local.yaml.
+# Paths support ~. This example is disabled until your project exists.
+crews:
+  - id: example_writer
+    name: Example Writer
+    description: Run your own CrewAI writing project.
+    project_dir: ~/Projects/example_writer
+    venv_python: ~/Projects/example_writer/.venv/bin/python
+    module: example_writer.main
+    entry_function: run_with_inputs
+    output_dir: output
+    inputs:
+      - name: topic
+        label: What would you like to write about?
+        type: text
+        default: ""
