@@ -10,9 +10,9 @@ The API key is read from the trading workflow's existing .env (FREEFLOW_API_KEY)
 file flow.py reads LSE_API_KEY from and the backtest engine reads MASSIVE_API_KEY from.
 
 Each of the three GEX methodologies carries its OWN status (healthy/limited/stale/
-rebuilding/unavailable/calibrating) and is never substituted for another - see
-docs/superpowers/specs/... design. A caller that only wants one methodology's numbers
-must check that methodology's own status field.
+rebuilding/unavailable/calibrating) and is never substituted for another. A caller
+that only wants one methodology's numbers must check that methodology's own status
+field.
 """
 import json
 import os

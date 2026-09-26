@@ -272,7 +272,7 @@
       this.currentSpan = null;
       this.active = true;
       this._paused = false;
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       console.log("[read-aloud DEBUG] begin (system)", { wordCount: this.words.length, boundaries: this.boundaries });
       this._speakFrom(startIndex);
       return { ok: true };
@@ -352,7 +352,7 @@
     }
 
     _setCurrentWord(i) {
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       console.log("[read-aloud DEBUG] _setCurrentWord (system)", { from: this.currentIndex, to: i });
       if (this.currentSpan) this.currentSpan.classList.remove(ACTIVE_CLASS);
       this.currentIndex = i;
@@ -402,7 +402,7 @@
     rewind() {
       if (!this.active) return;
       const target = computeRewindIndex(this.boundaries, this.currentIndex);
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       console.log("[read-aloud DEBUG] rewind (system)", { currentIndex: this.currentIndex, boundaries: this.boundaries, target });
       this._jumpTo(target);
     }
@@ -412,7 +412,7 @@
     fastForward() {
       if (!this.active) return;
       const target = computeForwardIndex(this.boundaries, this.currentIndex);
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       console.log("[read-aloud DEBUG] fastForward (system)", { currentIndex: this.currentIndex, boundaries: this.boundaries, target });
       if (target === null) return;
       this._jumpTo(target);
@@ -561,7 +561,7 @@
       this.currentSpan = null;
       this.active = true;
       this._paused = false;
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       console.log("[read-aloud DEBUG] begin (natural)", { wordCount: this.words.length, boundaries: this.boundaries });
 
       try {
@@ -701,7 +701,7 @@
     }
 
     _setCurrentWord(i) {
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       // Guarded to only log on an actual change - this is called every rAF
       // tick while playing and would otherwise flood the console.
       if (i !== this.currentIndex) console.log("[read-aloud DEBUG] _setCurrentWord (natural)", { from: this.currentIndex, to: i });
@@ -764,7 +764,7 @@
     rewind() {
       if (!this.active) return;
       const target = computeRewindIndex(this.boundaries, this.currentIndex);
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       console.log("[read-aloud DEBUG] rewind (natural)", { currentIndex: this.currentIndex, boundaries: this.boundaries, target });
       this._setCurrentWord(target);
       this._restartFrom(target);
@@ -775,7 +775,7 @@
     fastForward() {
       if (!this.active) return;
       const target = computeForwardIndex(this.boundaries, this.currentIndex);
-      // TEMP DIAGNOSTIC (see docs/superpowers/HANDOFF-2026-08-17.md) - remove once rewind is fixed.
+      // TEMP DIAGNOSTIC - remove once rewind is fixed.
       console.log("[read-aloud DEBUG] fastForward (natural)", { currentIndex: this.currentIndex, boundaries: this.boundaries, target });
       if (target === null) return;
       this._setCurrentWord(target);
