@@ -1,0 +1,48 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+.DS_Store
+.superpowers/
+app-backups/
+
+# Private machine setup, credentials, journals, generated runs and logs.
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.json
+preferences*.json
+machine*.json
+*.log
+*.pem
+*.key
+*.p12
+*.pfx
+state/
+data/
+data_cache/
+output/
+outputs/
+Library/
+media/
+tracker-data.json
+*.csv
+*.parquet
+*.sqlite*
+*.db
+# Private session handoffs are not product documentation.
+docs/superpowers/
+# Share artifacts are generated from an explicit public-file allowlist.
+share-exports/
+.obsidian/
+.codex/
+.claude/
+00 Notes/
+01 Journals/
+Trading/
+inbox/
+automations*.json

@@ -1,0 +1,913 @@
+<!-- (C) Icarus manual account tracker. Personal data loads from the user data folder. -->
+<title>Icarus Account Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+/* =========================================================================
+   PAYOUT LADDER -- night and gold.
+   Dark, airy, classical. Cormorant for the inscriptions, Jost for the
+   reading, Plex Mono for every number. One antique-gold accent, hairline
+   rules, no ornament. The only Greek thing left is the restraint.
+   ========================================================================= */
+:root{
+  color-scheme: dark;
+  /* Same tokens as the Fleur Dashboard (crew_dashboard/dashboard.css). */
+  --bg:#0a090c; --panel:#151217; --panel-2:#1c181e; --line:#26212a; --line-2:#38323d; --glass:rgba(255,255,255,.03); --edge:var(--line);
+  --text:#ded9db; --muted:#8a828a; --faint:#605a63;
+  --rose:#cf7f97; --rose-deep:#a85f76; --amber:#d98b4a; --amber-deep:#b76f33; --ok:#82b871; --fail:#d1453f;
+  --peri:var(--rose); --peri-deep:var(--rose-deep); --pink:var(--fail); --pink-deep:#a83630; --vine:var(--ok); --vine-deep:#5f9a50; --yellow:var(--amber); --yellow-deep:var(--amber-deep);
+  --accent:var(--rose); --accent-ink:#0a090c; --ink:#ded9db;
+  --good:var(--ok); --bad:var(--fail); --warn:var(--amber); --info:var(--rose);
+  --good-bg:rgba(130,184,113,.15); --bad-bg:rgba(209,69,63,.15); --accent-bg:rgba(207,127,151,.15);
+  --radius:10px;
+  --display:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --body:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(ellipse at 50% -15%,rgba(205,124,150,.035),transparent 60%),var(--bg);color:var(--text);font-family:var(--body);font-size:13px;line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased}
+
+/* ---- type ------------------------------------------------------------- */
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.2;font-weight:700;letter-spacing:.02em}
+h2{font-size:15px}
+h3{font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{background:#100c0f;border:1px solid var(--line-2);border-radius:6px;padding:8px 10px;box-shadow:none;font-size:12.5px;width:100%;min-width:0;transition:border-color .15s ease,box-shadow .15s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 3px var(--accent-glow,rgba(207,127,151,.15))}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px}
+input[type=checkbox]{accent-color:var(--rose)}
+textarea{min-height:90px;resize:vertical}
+label{font-size:10.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:400}
+.btn{background:transparent;color:var(--muted);border:1px solid transparent;border-radius:6px;padding:7px 12px;cursor:pointer;white-space:nowrap;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;transition:color .15s ease,border-color .15s ease,background .15s ease}
+.btn:hover{color:var(--text);border-color:var(--line-2)}
+.btn.primary{background:var(--amber);color:#1a1008;border-color:var(--amber);padding:9px 18px;box-shadow:none}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.gold{background:var(--amber);color:#1a1008;border-color:var(--amber);padding:9px 18px;box-shadow:0 0 0 3px rgba(217,139,74,.15)}
+.btn.gold:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--fail);border-color:var(--fail)}
+.btn.small{padding:4px 8px;font-size:10.5px}
+.btn.ghost{color:var(--muted)}
+.btn.ghost:hover{color:var(--text)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ---- top bar ---------------------------------------------------------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(10,9,12,.92);backdrop-filter:blur(8px)}
+.topbar .in{max-width:1180px;margin:0 auto;padding:14px 16px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.topbar::after{content:'';display:block;height:1px;background:var(--line)}
+.brand{display:flex;align-items:center;height:32px}
+.brand .flower-mark{display:block;filter:drop-shadow(0 0 6px rgba(207,127,151,.35))}
+.tabs{display:flex;gap:6px;margin-left:auto;overflow-x:auto;max-width:100%;padding:2px 0}
+.tab{background:var(--panel);border:1px solid var(--line-2);border-radius:6px;padding:6px 14px;color:var(--muted);cursor:pointer;white-space:nowrap;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;transition:color .15s ease,border-color .15s ease,background .15s ease}
+.tab:hover{color:var(--text);border-color:var(--muted)}
+.tab.on{color:var(--rose);background:var(--panel-2);border-color:var(--rose);box-shadow:0 0 0 3px var(--accent-bg)}
+.tools{display:flex;gap:4px;flex-wrap:wrap;width:100%;padding-bottom:10px}
+@media(min-width:900px){.tools{width:auto;margin-left:8px;padding-bottom:0;padding-top:2px}}
+
+/* ---- layout ----------------------------------------------------------- */
+main{max-width:1180px;margin:0 auto;padding:24px 16px 100px}
+.stack{display:flex;flex-direction:column;gap:22px}
+.grid{display:grid;gap:0 40px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.grid.tight{gap:18px 32px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.grid.tight+.row{padding-bottom:22px;border-bottom:1px solid var(--line)}
+.panel{background:transparent;border:0;padding:0}
+.panel.flat{padding-top:22px;border-top:1px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.row>*{flex:1 1 140px}
+.row>.fix{flex:0 0 auto}
+.muted{color:var(--muted)}
+.faint{color:var(--faint)}
+.small{font-size:13px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.stat{display:flex;flex-direction:column;gap:4px}
+.stat .v{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:2px 8px;border-radius:999px;border:1px solid currentColor;opacity:.9}
+.pill.good{color:var(--good)}
+.pill.bad{color:var(--bad)}
+.pill.accent{color:var(--yellow)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+.group-h{display:flex;align-items:baseline;gap:12px;padding-bottom:6px}
+.group-h h2{font-size:11px;font-family:var(--mono);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.group-h::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent);margin-left:8px;align-self:center}
+.group-h .count{color:var(--muted);font-size:12px;letter-spacing:.1em}
+
+/* ---- account card ----------------------------------------------------- */
+.acct{display:flex;flex-direction:column;gap:12px;padding:26px 0;border-top:1px solid var(--line)}
+.acct.ready h3{color:var(--amber)}
+.acct .head{display:flex;align-items:center;gap:8px}
+.acct .head h3{flex:1;min-width:0;overflow-wrap:anywhere}
+.acct .bal{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.acct .bal .v{font-family:var(--mono);font-size:24px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.bar{position:relative;height:4px;margin:12px 8px 8px 0;background:#100c0f;border-radius:2px;border:1px solid var(--line)}
+.bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--rose)}
+.bar .fill.neg{background:var(--bad)}
+.bar .mark{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--muted)}
+.bar .mark.buf{background:var(--info)}
+.bar::after{content:"";position:absolute;right:-8px;top:50%;width:10px;height:10px;transform:translateY(-50%);border-radius:50%;border:1.5px solid var(--line-2);background:var(--panel)}
+.acct.ready .bar::after{background:var(--yellow);border-color:var(--yellow)}
+.barlabels{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);letter-spacing:.02em}
+.gates{display:grid;grid-template-columns:1fr;gap:6px;font-size:13.5px;margin-top:6px}
+.gate{display:flex;gap:8px;align-items:flex-start}
+.gate .ic{width:18px;flex:0 0 18px;text-align:center;font-weight:600}
+.gate.ok .ic{color:var(--good)} .gate.no .ic{color:var(--faint)} .gate.warn .ic{color:var(--warn)}
+.meta{font-size:12px;color:var(--faint);line-height:1.8}
+.meta b{font-weight:400;color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.meta b.pos{color:var(--good)} .meta b.neg{color:var(--bad)}
+.meta .sep{margin:0 8px;color:var(--faint)}
+.actions{display:flex;gap:2px;flex-wrap:wrap;margin-top:auto;margin-left:-10px}
+.sub{border-top:1px dashed var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+
+/* ---- tables ----------------------------------------------------------- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:400;padding:6px 8px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.num,th.num{text-align:right}
+td:first-child{white-space:nowrap}
+.pct{white-space:nowrap;min-width:44px;text-align:right}
+tbody tr:hover td{background:var(--panel-2)}
+.tablewrap{overflow-x:auto}
+.logtable input{width:110px}
+.logtable td:first-child{padding-left:0}
+.logtable th:first-child{padding-left:0}
+
+/* ---- misc ------------------------------------------------------------ */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel-2);color:var(--text);border:1px solid var(--line-2);padding:8px 14px;border-radius:6px;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;z-index:60;opacity:0;transition:opacity .2s}
+.toast.show{opacity:1}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--bad)}
+.empty{color:var(--muted);padding:24px 0;font-size:13px}
+.tiers{display:flex;flex-direction:column;gap:6px}
+.tier{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end}
+.help{font-size:12px;color:var(--faint);margin-top:4px;line-height:1.55;font-weight:400}
+details summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);list-style:none;font-weight:700}
+details summary::before{content:'+ ';color:var(--faint)}
+details[open] summary::before{content:'− '}
+
+/* ---- stats dropdown -------------------------------------------------- */
+.statsbox{display:flex;flex-direction:column;gap:10px}
+.statsbar{display:flex;align-items:center;justify-content:space-between}
+.dd{position:relative}
+.dd-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:220px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.55)}
+.dd-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;font-family:var(--body);font-size:13px;letter-spacing:0;text-transform:none;color:var(--text);margin:0;font-weight:400}
+.dd-item:hover{background:rgba(255,255,255,.05)}
+.dd-item input{width:15px;height:15px;margin:0;accent-color:var(--rose)}
+
+/* ---- calendar -------------------------------------------------------- */
+.cal-h{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.cal-h h2{margin-right:auto}
+.cal-nav{display:flex;gap:2px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-w{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:0 0 4px 6px;font-weight:600}
+.cal-cell{min-height:64px;border-radius:8px;background:rgba(0,0,0,.25);border:1px solid var(--line);padding:6px 7px;display:flex;flex-direction:column;gap:2px}
+.cal-cell.pad{background:transparent;border-color:transparent}
+.cal-cell.up{background:rgba(130,184,113,.12);border-color:rgba(130,184,113,.35)}
+.cal-cell.down{background:rgba(209,69,63,.12);border-color:rgba(209,69,63,.35)}
+.cal-cell.today{border-color:var(--rose);box-shadow:inset 0 0 0 1px var(--rose)}
+.cal-d{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted)}
+.cal-cell.up .cal-d,.cal-cell.down .cal-d,.cal-cell.today .cal-d{color:var(--text)}
+.cal-p{font-size:12px;font-weight:600}
+.cal-cell.up .cal-p{color:var(--good)} .cal-cell.down .cal-p{color:var(--bad)}
+.cal-n{font-size:10px;color:var(--muted)}
+@media(max-width:520px){.cal-cell{min-height:52px;padding:4px 5px}.cal-p{font-size:11px}.cal-n{display:none}}
+
+/* ---- dashboard ------------------------------------------------------- */
+.panel{position:relative;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:var(--radius);padding:18px 20px;box-shadow:none}
+.panel.flat{background:transparent;padding:18px 0 0;border:0;border-top:1px solid var(--line);border-radius:0}
+.panel h2{font-size:13px;margin-bottom:4px;color:var(--text);text-transform:uppercase;letter-spacing:.06em}
+
+.dash{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:820px){.dash{grid-template-columns:1fr 1fr}}
+@media(min-width:1000px){.dash.wide{grid-template-columns:2fr 1fr}}
+.grid.tight{display:flex;flex-wrap:wrap;gap:18px}
+.grid.tight>*{flex:1 1 190px;min-width:190px}
+.grid.tight+.row{padding-bottom:0;border-bottom:0}
+.grid.cards{gap:18px;grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
+.stat{min-height:108px;justify-content:flex-start}
+.stat .v{font-size:26px;font-weight:700;letter-spacing:0}
+
+.stat.withring{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+.stat.hero{background:var(--panel-2);border-left-color:var(--rose);box-shadow:0 0 0 1px var(--accent-bg)}
+
+.stat.hero .eyebrow{color:var(--rose)}
+.stat.hero .ring circle:first-child{stroke:var(--line-2)}
+.stat.withring>div{display:flex;flex-direction:column;gap:4px}
+.spark{display:block;width:130px;height:32px;margin-top:auto}
+.ring{display:block;flex:0 0 auto}
+.ringbox{display:flex;flex-direction:column;align-items:center;gap:2px;margin-left:auto}
+.acct{padding:18px 20px}
+.acct.ready{border-left-color:var(--amber);box-shadow:0 0 0 1px rgba(217,139,74,.35)}
+.acct .bal{align-items:flex-start}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto}
+.chart .axis{font-family:var(--mono);font-size:10px;fill:var(--faint)}
+.chart .tip{position:absolute;top:6px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:4px;padding:4px 8px;font-size:12px;pointer-events:none;white-space:nowrap}
+.plist{display:flex;flex-direction:column;gap:12px}
+.prow-h{display:flex;justify-content:space-between;font-size:13px}
+.prow .bar{height:5px}
+.prow .bar .mark.buf{top:-3px;bottom:-3px}
+@media (prefers-reduced-motion: reduce){.toast{transition:none}}
+</style>
+
+<div class="topbar"><div class="in">
+  <div class="brand" title="Icarus Account Tracker"><svg class="flower-mark" width="28" height="28" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-label="Fleur"><circle cx="20" cy="20" r="19" fill="#151217"/><g><circle cx="20.00" cy="12.00" r="8.5" fill="#cf7f97" opacity="0.92"/><circle cx="25.14" cy="13.87" r="8.5" fill="#c789a8" opacity="0.92"/><circle cx="27.88" cy="18.61" r="8.5" fill="#a88ab8" opacity="0.92"/><circle cx="26.93" cy="24.00" r="8.5" fill="#8a7aa8" opacity="0.92"/><circle cx="22.74" cy="27.52" r="8.5" fill="#b1748f" opacity="0.92"/><circle cx="17.26" cy="27.52" r="8.5" fill="#cf7f97" opacity="0.92"/><circle cx="13.07" cy="24.00" r="8.5" fill="#c789a8" opacity="0.92"/><circle cx="12.12" cy="18.61" r="8.5" fill="#a88ab8" opacity="0.92"/><circle cx="14.86" cy="13.87" r="8.5" fill="#8a7aa8" opacity="0.92"/></g><circle cx="20" cy="20" r="8.5" fill="#f2e9e4"/><circle cx="17" cy="19" r="1.15" fill="#241820"/><circle cx="23" cy="19" r="1.15" fill="#241820"/><path d="M16.5 22.5 Q20 25.2 23.5 22.5" stroke="#241820" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="14.5" cy="21.5" r="1.1" fill="#e3a3b8" opacity="0.6"/><circle cx="25.5" cy="21.5" r="1.1" fill="#e3a3b8" opacity="0.6"/></svg></div>
+  <nav class="tabs" id="tabs">
+    <button class="tab" data-tab="accounts">Accounts</button>
+    <button class="tab" data-tab="payouts">Payouts</button>
+    <button class="tab" data-tab="expenses">Expenses</button>
+  </nav>
+  <div class="tools">
+    <button class="btn small ghost" id="btnExport">Export backup</button>
+    <button class="btn small ghost" id="btnImport">Import backup</button>
+    <button class="btn small ghost" id="btnNames">Hide names</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</div></div>
+<main id="view"></main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- state ---------- */
+const KEY = 'payout-ladder.v1';
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+const today = () => new Date().toLocaleDateString('en-CA');
+const COLORS = ['#3987e5','#d95926','#199e70','#c98500','#d55181','#008300','#9085e9','#e66767']; // validated for the dark surface (CVD-safe adjacent pairs)
+
+// (C) Public installs begin empty; private accounts are loaded from the data folder.
+function seedState() { return {version:11, firms:{}, accounts:[], expenses:[]}; }
+let ruleCatalog = {firms:[]};
+let pendingPlan = '';
+function catalogEntries() { return ruleCatalog.firms.flatMap(firm => firm.programs.map(program => ({firm,program}))); }
+function catalogOptions() { return catalogEntries().map(({firm,program}) => `<option value="catalog:${esc(program.id)}">${esc(firm.name)} · ${esc(program.name)}${program.status === 'legacy' ? ' (legacy)' : ''}</option>`).join(''); }
+function catalogSelection() {
+  const select = document.getElementById('naFirm'); if (!select) return;
+  const entry = catalogEntries().find(e => 'catalog:' + e.program.id === select.value);
+  const stage = document.getElementById('naStage');
+  stage.innerHTML = entry ? entry.program.stages.map(s => `<option>${esc(s)}</option>`).join('') : '<option>Personal rule set</option>';
+  const size = document.getElementById('naSize');
+  const sizeList = document.getElementById('catalogSizes');
+  const sizes = entry ? entry.program.sizes.map(s => { const match = s.replace(/,/g,'').match(/([\d.]+)\s*([kKmM]?)/); return match ? Number(match[1]) * ({k:1000,m:1000000}[match[2].toLowerCase()] || 1) : null; }).filter(s => s > 0) : [];
+  sizeList.innerHTML = sizes.map(s => `<option value="${s}">`).join('');
+  size.value = entry ? sizes[0] || '' : state.firms[select.value]?.size || '';
+}
+function catalogRule(id, size, stage) {
+  const entry = catalogEntries().find(e => e.program.id === id);
+  if (!entry) return null;
+  const {firm,program} = entry;
+  const key = 'catalog-' + id + '-' + size + '-' + stage.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  return {id:key,name:firm.name+' · '+program.name+' · '+size.toLocaleString('en-US')+' · '+stage,
+    size,referenceOnly:true,catalogId:id,stage,tiers:[],buffer:size,winDays:0,winDayMin:0,
+    consistency:100,consistencyResets:false,minBalance:null,dailyLoss:null,
+    notes:'Manual tracking. Review this plan in Firm rules; payout eligibility is not calculated.'};
+}
+let state = null;
+
+/* ---------- storage: Fleur Dashboard bridge, or browser storage ----------
+   Inside Icarus the page is embedded with ?host=fleur and asks
+   the dashboard for its data over postMessage; the dashboard keeps it as a
+   JSON file in the vault. Anywhere else (artifact, local file) it uses
+   localStorage. */
+const inFleur = (() => { try { return new URLSearchParams(location.search).get('host') === 'fleur' && window.parent !== window; } catch (e) { return false; } })();
+function bridgeLoad() {
+  return new Promise(res => {
+    let done = false;
+    const onMsg = e => { const m = e.data || {}; if (e.source === window.parent && m.type === 'fleur-tracker:state') { ruleCatalog = m.catalog || {firms:[]}; pendingPlan = m.program || '';  done = true; window.removeEventListener('message', onMsg); res(m.json == null ? null : m.json); } };
+    window.addEventListener('message', onMsg);
+    try { window.parent.postMessage({ type: 'fleur-tracker:load' }, '*'); } catch (e) {}
+    setTimeout(() => { if (!done) { window.removeEventListener('message', onMsg); res(undefined); } }, 2500);
+  });
+}
+if (inFleur) window.addEventListener('message', e => { const m = e.data || {}; if (m.type === 'fleur-tracker:saved' && !m.ok) toast('Could not save: ' + (m.error || 'unknown error')); });
+async function loadInitial() {
+  if (inFleur) {
+    const json = await bridgeLoad();
+    if (json === undefined) toast('Dashboard did not answer; changes will not be saved');
+    else if (json) { try { return JSON.parse(json); } catch (e) { toast('Saved data is unreadable; starting fresh'); } }
+    return null;
+  }
+  try { const s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
+  return null;
+}
+// Existing rule sets, balances and history are user-owned. No automatic rewrites.
+function migrate() {}
+function save() {
+  const json = JSON.stringify(state);
+  if (inFleur) { try { window.parent.postMessage({ type: 'fleur-tracker:save', json }, '*'); } catch (e) { toast('Could not reach the dashboard to save'); } return; }
+  try { localStorage.setItem(KEY, json); }
+  catch (e) { toast('Could not save. Browser storage is blocked.'); }
+}
+
+/* ---------- helpers ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function money(n, opts = {}) {
+  if (n == null || isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  const s = '$' + abs.toLocaleString('en-US', { minimumFractionDigits: opts.cents ? 2 : 0, maximumFractionDigits: opts.cents ? 2 : 0 });
+  if (n < 0) return '-' + s;
+  return (opts.sign && n > 0 ? '+' : '') + s;
+}
+const pnlClass = n => n > 0 ? 'pos' : n < 0 ? 'neg' : '';
+const firmOf = a => state.firms[a.firm];
+const nm = a => state.hideNames ? `Account ${state.accounts.indexOf(a) + 1}` : esc(a.name);
+let toastT;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+
+/* ---------- account math ---------- */
+function bestDayOnBooks(a, resets, cycleDays) { const pool = resets ? cycleDays : a.days; let b = pool.reduce((m, d) => Math.max(m, d.pnl), 0); if (a.seedBestDay != null) b = Math.max(b, a.seedBestDay); return b; }
+function calc(a) {
+  const f = firmOf(a) || { tiers: [], winDays: 0, consistency: 100, consistencyResets: true, buffer: a.startBalance, minBalance: null, winDayMin: 0 };
+  const sumPnl = a.days.reduce((s, d) => s + d.pnl, 0);
+  const sumPay = a.payouts.reduce((s, p) => s + p.amount, 0);
+  const balance = a.seedBalance + sumPnl - sumPay;
+  const lastPay = a.payouts.length ? a.payouts[a.payouts.length - 1] : null;
+  const cycleDays = lastPay ? a.days.filter(d => d.ts > lastPay.ts) : a.days;
+  const winDayMin = f.winDayMin || 0;
+  const winDays = cycleDays.filter(d => d.pnl > 0 && d.pnl >= winDayMin).length + (a.seedWinDays || 0);
+  const payoutsTaken = a.payouts.length;
+  const tier = f.tiers.find(t => t.upTo == null || payoutsTaken + 1 <= t.upTo) || f.tiers[f.tiers.length - 1] || { balance: a.startBalance, amount: 0 };
+  const cycleStart = lastPay ? lastPay.balanceAfter : a.startBalance;
+  const resets = !!f.consistencyResets;
+  const profitWindow = resets ? balance - cycleStart : balance - a.startBalance + sumPay;
+  const pool = resets ? cycleDays : a.days;
+  let bestDay = pool.reduce((m, d) => Math.max(m, d.pnl), -Infinity);
+  if (a.seedBestDay != null) bestDay = Math.max(bestDay, a.seedBestDay);
+  if (bestDay === -Infinity) bestDay = null;
+  const pct = (f.consistency || 100) / 100;
+  const profitAtTarget = resets ? tier.balance - cycleStart : tier.balance - a.startBalance + sumPay;
+  const maxDay = Math.max(pct * profitAtTarget, bestDayOnBooks(a, resets, cycleDays));
+  let consistencyNow = null, consistencyOk = true, needForConsistency = 0;
+  if (bestDay != null && bestDay > 0) {
+    consistencyNow = profitWindow > 0 ? bestDay / profitWindow : Infinity;
+    consistencyOk = consistencyNow <= pct + 1e-9;
+    needForConsistency = Math.max(0, bestDay / pct - profitWindow);
+  }
+  const needForBalance = Math.max(0, tier.balance - balance);
+  const needed = Math.max(needForBalance, needForConsistency);
+  const daysLeft = Math.max(0, (f.winDays || 0) - winDays);
+  const perDay = needed > 0 ? needed / Math.max(1, daysLeft) : 0;
+  const buffered = balance >= (f.buffer || 0);
+  const floorBreach = f.minBalance != null && balance < f.minBalance;
+  const ready = !f.referenceOnly && needed <= 0 && daysLeft === 0 && consistencyOk && !floorBreach;
+  return { f, balance, winDays, daysLeft, tier, needed, needForBalance, needForConsistency, perDay, maxDay, buffered, floorBreach, bestDay, consistencyNow, consistencyOk, profitWindow, ready, sumPay, payoutsTaken, cycleDays };
+}
+
+/* ---------- routing ---------- */
+let tab = 'accounts';
+const okTabs = ['accounts', 'payouts', 'expenses'];
+const h = location.hash.replace('#', '');
+if (okTabs.includes(h)) tab = h;
+else { try { const t = localStorage.getItem(KEY + '.tab'); if (okTabs.includes(t)) tab = t; } catch (e) {} }
+document.getElementById('tabs').addEventListener('click', e => {
+  const b = e.target.closest('.tab'); if (!b) return;
+  tab = b.dataset.tab; try { localStorage.setItem(KEY + '.tab', tab); } catch (x) {}
+  try { history.replaceState(null, '', '#' + tab); } catch (x) {} render();
+});
+const ui = { editing: {}, history: {}, payout: {}, confirm: {} };
+
+function render() {
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  const v = document.getElementById('view');
+  v.innerHTML = { accounts: renderAccounts, payouts: renderPayouts, expenses: renderExpenses }[tab]();
+  attachCharts();
+  const select = document.getElementById('naFirm');
+  if (select) {
+    if (pendingPlan && catalogEntries().some(e => e.program.id === pendingPlan)) {
+      select.value = 'catalog:' + pendingPlan;
+      const form = document.getElementById('add-account-form'); form.open = true;
+      form.scrollIntoView({block:'start'}); pendingPlan = '';
+    }
+    select.addEventListener('change', catalogSelection); catalogSelection();
+  }
+}
+
+/* ---------- chart helpers (inline SVG, single dark theme) ---------- */
+const kfmt = n => Math.abs(n) >= 1000 ? (n / 1000).toFixed(Math.abs(n) >= 100000 ? 0 : 1).replace(/\.0$/, '') + 'k' : String(Math.round(n));
+const moneyK = n => (n < 0 ? '-' : '') + '$' + kfmt(Math.abs(n));
+// axis labels: precision follows the tick step, so $288,400 / $288,600 never both print as "$288k"
+const axisFmt = step => step >= 1000 ? (n => n === 0 ? '$0' : (n < 0 ? '-' : '') + '$' + (Math.abs(n) / 1000).toFixed(step >= 10000 ? 0 : step >= 1000 && step % 1000 ? 1 : 0).replace(/\.0$/, '') + 'k') : (n => money(n));
+const shortDate = d => /^\d{4}-\d{2}-\d{2}$/.test(d) ? new Date(d + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : d;
+function niceStep(raw) { const p = Math.pow(10, Math.floor(Math.log10(raw || 1))); const r = raw / p; return (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * p; }
+function ticks(min, max, n = 4) { if (max === min) { max = min + Math.max(1, Math.abs(min) * 0.01); } const step = niceStep((max - min) / n); const t0 = Math.floor(min / step) * step; const out = []; for (let v = t0, i = 0; i < 40; v += step, i++) { out.push(+v.toFixed(6)); if (v >= max - 1e-9) break; } return out; }
+function spark(values, color) {
+  if (values.length < 2) return '';
+  const w = 120, h = 30, p = 3, mn = Math.min(...values), mx = Math.max(...values);
+  const sx = i => p + i * (w - 2 * p) / (values.length - 1), sy = v => mx === mn ? h / 2 : p + (h - 2 * p) * (1 - (v - mn) / (mx - mn));
+  const pts = values.map((v, i) => `${sx(i).toFixed(1)},${sy(v).toFixed(1)}`);
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="M${pts.join('L')}L${sx(values.length - 1).toFixed(1)},${h}L${sx(0)},${h}Z" fill="${color}" fill-opacity=".12"/><path d="M${pts.join('L')}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/><circle cx="${sx(values.length - 1).toFixed(1)}" cy="${sy(values[values.length - 1]).toFixed(1)}" r="2.5" fill="${color}"/></svg>`;
+}
+function ring(pct, size = 60, color = 'var(--accent)', label = null) {
+  const r = (size - 6) / 2, c = 2 * Math.PI * r, f = Math.min(100, Math.max(0, pct)) / 100;
+  return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="3"/><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-dasharray="${(c * f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${size / 2} ${size / 2})"/><text x="50%" y="50%" dy=".35em" text-anchor="middle" font-size="${size > 56 ? 13 : 11}" fill="var(--text)" font-family="JetBrains Mono, monospace">${label == null ? Math.round(pct) + '%' : label}</text></svg>`;
+}
+function lineChart(pts, { color = '#cf7f97', h = 230, empty = 'Log a few days and this fills in.' } = {}) {
+  if (pts.length < 2) return `<div class="empty">${empty}</div>`;
+  const W = 640, H = h, L = 62, R = 16, T = 14, B = 28;
+  const vals = pts.map(p => p.value), tk = ticks(Math.min(...vals), Math.max(...vals), 4), mn = tk[0], mx = tk[tk.length - 1], af = axisFmt(tk[1] - tk[0]);
+  const sx = i => L + i * (W - L - R) / (pts.length - 1), sy = v => T + (H - T - B) * (1 - (v - mn) / (mx - mn || 1));
+  const xs = pts.map((p, i) => +sx(i).toFixed(1)), ys = vals.map(v => +sy(v).toFixed(1));
+  const path = xs.map((x, i) => `${x},${ys[i]}`).join('L');
+  const every = Math.max(1, Math.ceil(pts.length / 6));
+  return `<div class="chart" data-chart="line" data-labels='${JSON.stringify(pts.map(p => p.label))}' data-values='${JSON.stringify(vals)}' data-xs='${JSON.stringify(xs)}' data-ys='${JSON.stringify(ys)}' data-w="${W}">
+  <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Net profit over time">
+    ${tk.map(t => `<line x1="${L}" x2="${W - R}" y1="${sy(t).toFixed(1)}" y2="${sy(t).toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 8}" y="${sy(t).toFixed(1)}" dy=".35em" text-anchor="end" class="axis">${af(t)}</text>`).join('')}
+    ${pts.map((p, i) => (i % every === 0 || i === pts.length - 1) ? `<text x="${xs[i]}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === pts.length - 1 ? 'end' : 'middle'}" class="axis">${shortDate(p.label)}</text>` : '').join('')}
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient><filter id="gl" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <path d="M${path}L${xs[xs.length - 1]},${(H - B).toFixed(1)}L${xs[0]},${(H - B).toFixed(1)}Z" fill="url(#ga)"/>
+    <path d="M${path}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" filter="url(#gl)"/>
+    <circle cx="${xs[xs.length - 1]}" cy="${ys[ys.length - 1]}" r="4" fill="${color}" stroke="var(--panel)" stroke-width="2"/>
+    <line class="xh" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="3 3" style="display:none"/><circle class="xd" r="5" fill="var(--panel)" stroke="${color}" stroke-width="2" style="display:none"/>
+  </svg><div class="tip" hidden></div></div>`;
+}
+function barChart(pts, { h = 230, empty = 'Nothing to show yet.', fmt = v => money(v, { sign: true, cents: true }), color = null, label = 'Bar chart' } = {}) {
+  if (!pts.length) return `<div class="empty">${empty}</div>`;
+  const W = 640, H = h, L = 62, R = 16, T = 14, B = 28;
+  const vals = pts.map(p => p.value), lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const tk = ticks(lo, hi, 4), mn = tk[0], mx = tk[tk.length - 1], af = axisFmt(tk[1] - tk[0]);
+  const sy = v => T + (H - T - B) * (1 - (v - mn) / (mx - mn || 1));
+  const slot = (W - L - R) / pts.length, bw = Math.max(3, Math.min(28, slot - Math.max(2, slot * 0.35)));
+  const xs = pts.map((p, i) => +(L + slot * (i + 0.5)).toFixed(1)), ys = vals.map(v => +sy(v).toFixed(1)), y0 = sy(0);
+  const every = Math.max(1, Math.ceil(pts.length / 6));
+  return `<div class="chart" data-chart="bar" data-labels='${JSON.stringify(pts.map(p => p.label))}' data-values='${JSON.stringify(vals)}' data-xs='${JSON.stringify(xs)}' data-ys='${JSON.stringify(ys)}' data-w="${W}" data-fmt="${fmt === money ? 'money' : 'pnl'}">
+  <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}">
+    ${tk.map(t => `<line x1="${L}" x2="${W - R}" y1="${sy(t).toFixed(1)}" y2="${sy(t).toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 8}" y="${sy(t).toFixed(1)}" dy=".35em" text-anchor="end" class="axis">${af(t)}</text>`).join('')}
+    ${pts.map((p, i) => { const v = vals[i], top = Math.min(ys[i], y0), hh = Math.max(1, Math.abs(ys[i] - y0)); return `<rect x="${(xs[i] - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" rx="2" fill="${color || (v < 0 ? 'var(--bad)' : 'var(--good)')}"/>`; }).join('')}
+    <line x1="${L}" x2="${W - R}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="var(--line-2)" stroke-width="1"/>
+    ${pts.map((p, i) => (i % every === 0 || i === pts.length - 1) ? `<text x="${xs[i]}" y="${H - 8}" text-anchor="middle" class="axis">${shortDate(p.label)}</text>` : '').join('')}
+    <line class="xh" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="3 3" style="display:none"/>
+  </svg><div class="tip" hidden></div></div>`;
+}
+function attachCharts() {
+  document.querySelectorAll('.chart[data-chart]').forEach(ch => {
+    const svg = ch.querySelector('svg'), tip = ch.querySelector('.tip');
+    const labels = JSON.parse(ch.dataset.labels), values = JSON.parse(ch.dataset.values), xs = JSON.parse(ch.dataset.xs), ys = JSON.parse(ch.dataset.ys), W = +ch.dataset.w;
+    const xh = svg.querySelector('.xh'), xd = svg.querySelector('.xd');
+    const fmt = ch.dataset.chart === 'bar' ? (ch.dataset.fmt === 'money' ? v => money(v) : v => money(v, { sign: true, cents: true })) : v => money(v);
+    const move = e => {
+      const rect = svg.getBoundingClientRect(); const x = (e.clientX - rect.left) * W / rect.width;
+      let best = 0; xs.forEach((v, i) => { if (Math.abs(v - x) < Math.abs(xs[best] - x)) best = i; });
+      if (xh) { xh.setAttribute('x1', xs[best]); xh.setAttribute('x2', xs[best]); xh.style.display = ''; }
+      if (xd) { xd.setAttribute('cx', xs[best]); xd.setAttribute('cy', ys[best]); xd.style.display = ''; }
+      tip.hidden = false; tip.innerHTML = `<span class="muted">${shortDate(labels[best])}</span> <b class="num">${fmt(values[best])}</b>`;
+      const px = xs[best] * rect.width / W; tip.style.left = Math.min(rect.width - tip.offsetWidth - 4, Math.max(4, px - tip.offsetWidth / 2)) + 'px';
+    };
+    const leave = () => { tip.hidden = true; if (xh) xh.style.display = 'none'; if (xd) xd.style.display = 'none'; };
+    svg.addEventListener('mousemove', move); svg.addEventListener('mouseleave', leave);
+    svg.addEventListener('touchstart', e => move(e.touches[0]), { passive: true }); svg.addEventListener('touchmove', e => move(e.touches[0]), { passive: true }); svg.addEventListener('touchend', leave);
+  });
+}
+
+/* ---------- series from logged data ---------- */
+function timeline() {
+  const act = state.accounts.filter(a => a.status === 'active');
+  const dates = new Set(); act.forEach(a => { a.days.forEach(d => dates.add(d.date)); a.payouts.forEach(p => dates.add(p.date)); });
+  const ds = [...dates].filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+  if (!ds.length) return { balance: [], daily: [] };
+  // Net profit: cumulative logged P&L across active accounts, from $0. Payouts are
+  // not subtracted; money already taken out is still profit made.
+  const prev = new Date(ds[0] + 'T12:00'); prev.setDate(prev.getDate() - 1);
+  const balance = [{ label: prev.toLocaleDateString('en-CA'), value: 0 }], daily = [];
+  ds.forEach(d => { let cum = 0, pnl = 0;
+    act.forEach(a => a.days.forEach(x => { if (x.date <= d) cum += x.pnl; if (x.date === d) pnl += x.pnl; }));
+    balance.push({ label: d, value: cum }); daily.push({ label: d, value: pnl }); });
+  return { balance, daily };
+}
+function calendar(ym) {
+  const act = state.accounts.filter(a => a.status === 'active');
+  const perDate = {};
+  act.forEach(a => a.days.forEach(d => { const c = (perDate[d.date] = perDate[d.date] || { pnl: 0, n: 0, green: 0, red: 0 }); c.pnl += d.pnl; c.n++; if (d.pnl > 0) c.green++; else if (d.pnl < 0) c.red++; }));
+  const [y, m] = ym.split('-').map(Number);
+  const first = new Date(y, m - 1, 1), start = first.getDay(), dim = new Date(y, m, 0).getDate(), t = today();
+  const month = Object.entries(perDate).filter(([d]) => d.startsWith(ym));
+  const tot = month.reduce((x, [, c]) => x + c.pnl, 0), g = month.filter(([, c]) => c.pnl > 0).length, r = month.filter(([, c]) => c.pnl < 0).length;
+  const cells = [];
+  for (let i = 0; i < start; i++) cells.push('<div class="cal-cell pad"></div>');
+  for (let d = 1; d <= dim; d++) {
+    const key = `${ym}-${String(d).padStart(2, '0')}`, c = perDate[key];
+    cells.push(`<div class="cal-cell ${c ? (c.pnl > 0 ? 'up' : c.pnl < 0 ? 'down' : 'flat') : ''} ${key === t ? 'today' : ''}" title="${shortDate(key)}${c ? ' · ' + money(c.pnl, { sign: true, cents: true }) + ' · ' + c.n + ' account' + (c.n === 1 ? '' : 's') : ' · no days logged'}"><span class="cal-d">${d}</span>${c ? `<span class="cal-p num">${money(c.pnl, { sign: true })}</span><span class="cal-n">${c.n} acct${c.n === 1 ? '' : 's'}</span>` : ''}</div>`);
+  }
+  const label = first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  return `<div class="cal">
+    <div class="cal-h"><h2>${label}</h2><span class="small ${pnlClass(tot)}">${month.length ? money(tot, { sign: true }) + ' this month' : 'nothing logged'}</span><span class="small muted">${g} green · ${r} red</span>
+      <span class="cal-nav"><button class="btn small ghost" data-action="cal-nav" data-dir="-1" aria-label="Previous month">‹</button><button class="btn small ghost" data-action="cal-nav" data-dir="1" aria-label="Next month">›</button><button class="btn small ghost" data-action="cal-today">Today</button></span></div>
+    <div class="cal-grid">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(w => `<div class="cal-w">${w}</div>`).join('')}${cells.join('')}</div>
+  </div>`;
+}
+function cumulative(events) { const out = [0]; let c = 0; [...events].sort((a, b) => a.ts - b.ts).forEach(e => { c += e.amt; out.push(c); }); return out; }
+function moneyEvents() {
+  const pay = []; state.accounts.forEach(a => a.payouts.forEach(p => pay.push({ ts: p.ts, amt: p.amount })));
+  const exp = state.expenses.map(e => ({ ts: e.ts, amt: e.cost }));
+  return { pay, exp, net: [...pay, ...exp.map(e => ({ ts: e.ts, amt: -e.amt }))] };
+}
+function byMonth(items) { const m = {}; items.forEach(i => { const k = (i.date || '').slice(0, 7); if (/^\d{4}-\d{2}$/.test(k)) m[k] = (m[k] || 0) + i.amount; }); return Object.keys(m).sort().map(k => ({ label: k + '-01', value: m[k] })); }
+
+/* ---------- top stats (which tiles show) ---------- */
+const STAT_DEFS = { payouts: 'Total payouts', expenses: 'Total expenses', net: 'Net', ratio: 'Realized / potential', roi: 'Return on expenses' };
+function statsOn() { return state.statsShown || (state.statsShown = { payouts: true, expenses: true, net: true, ratio: true, roi: true }); }
+function statTiles(tiles) {
+  const on = statsOn(); const shown = tiles.filter(t => on[t.key] !== false);
+  return `<div class="statsbox">
+    <div class="statsbar"><span class="eyebrow">Overview</span>
+      <div class="dd">
+        <button class="btn small ghost" data-action="stats-edit" aria-expanded="${!!ui.statsEdit}">Stats ${shown.length}/${tiles.length} ▾</button>
+        ${ui.statsEdit ? `<div class="dd-menu">${tiles.map(t => `<label class="dd-item"><input type="checkbox" data-action="stats-toggle" data-key="${t.key}" ${on[t.key] !== false ? 'checked' : ''}><span>${STAT_DEFS[t.key]}</span></label>`).join('')}</div>` : ''}
+      </div></div>
+    <div class="grid tight" style="${shown.length ? '' : 'display:none'}">${shown.map(t => t.html).join('')}</div>
+    ${shown.length ? '' : '<div class="empty">All stats hidden. Pick some from the Stats menu.</div>'}
+  </div>`;
+}
+const tile = (key, label, value, sub, extra = '') => ({ key, html: `<div class="panel stat"><span class="eyebrow">${label}</span><span class="v">${value}</span>${sub ? `<span class="small muted">${sub}</span>` : ''}${extra}</div>` });
+function commonTiles(totPay, totExp, payCount) {
+  const ev = moneyEvents();
+  return [
+    tile('payouts', 'Total payouts', `<span class="pos">${money(totPay)}</span>`, payCount != null ? `${payCount} payout${payCount === 1 ? '' : 's'}` : '', spark(cumulative(ev.pay), 'var(--good)')),
+    tile('expenses', 'Total expenses', `<span class="neg">${money(totExp)}</span>`, `${state.expenses.reduce((x, e) => x + (e.qty ?? 1), 0)} accounts bought`, spark(cumulative(ev.exp), 'var(--bad)')),
+    tile('net', 'Net', `<span class="${pnlClass(totPay - totExp)}">${money(totPay - totExp, { sign: true })}</span>`, 'payouts − expenses', spark(cumulative(ev.net), 'var(--peri)'))
+  ];
+}
+function ratioOf(active, calcs) {
+  active = active.filter(a => !calcs[a.id].f.referenceOnly);
+  const over = active.reduce((x, a) => x + Math.max(0, calcs[a.id].balance - (calcs[a.id].f.buffer || a.startBalance)), 0);
+  const max = active.reduce((x, a) => x + (calcs[a.id].tier.amount || 0), 0);
+  return { over, max, pct: max ? over / max * 100 : 0 };
+}
+
+/* ---------- accounts page ---------- */
+function renderAccounts() {
+  const active = state.accounts.filter(a => a.status === 'active');
+  const calcs = Object.fromEntries(state.accounts.map(a => [a.id, calc(a)]));
+  const totPay = state.accounts.reduce((s, a) => s + calcs[a.id].sumPay, 0);
+  const totExp = state.expenses.reduce((s, e) => s + e.cost, 0);
+  const totNeed = active.reduce((s, a) => s + calcs[a.id].needed, 0);
+  const readyCount = active.filter(a => calcs[a.id].ready).length;
+  const ratio = ratioOf(active, calcs);
+  const tl = timeline();
+  // One grid: ready accounts first, then fewest win days left, then least $ needed.
+  const ordered = [...active].sort((x, y) => { const a = calcs[x.id], b = calcs[y.id]; return (b.ready - a.ready) || (a.daysLeft - b.daysLeft) || (a.needed - b.needed); });
+  const d = today();
+  const prog = active.filter(a => !calcs[a.id].f.referenceOnly).map(a => { const c = calcs[a.id]; const span = Math.max(1, c.tier.balance - a.startBalance); return { a, c, pct: Math.min(100, Math.max(0, (c.balance - a.startBalance) / span * 100)), buf: Math.min(100, Math.max(0, ((c.f.buffer || 0) - a.startBalance) / span * 100)) }; }).sort((x, y) => y.pct - x.pct);
+
+  return `<div class="stack">
+  ${statTiles([
+    ...commonTiles(totPay, totExp, null),
+    { key: 'ratio', html: `<div class="panel stat withring hero"><div><span class="eyebrow">Realized / potential</span><span class="v">${money(ratio.over)}</span><span class="small muted">of ${money(ratio.max)} in max payouts</span></div>${ring(ratio.pct, 56, 'var(--rose)', '')}</div>` }
+  ])}
+
+  <div class="dash wide">
+    <div class="panel span2"><h2>Net profit over time</h2><div class="help" style="margin-bottom:8px">Cumulative P&amp;L across active accounts, from $0. Payouts taken are not subtracted.</div>${lineChart(tl.balance, { empty: 'Log a few days and this fills in.' })}</div>
+    <div class="panel"><h2>Progress to next payout</h2><div class="help" style="margin-bottom:12px">Start → target balance. Tick = buffer.</div>
+      <div class="plist">${prog.map(r => `<div class="prow"><div class="prow-h"><span><span class="dot" style="background:${r.a.color}"></span> ${nm(r.a)}</span><span class="num muted">${Math.round(r.pct)}%</span></div><div class="bar" style="margin:6px 0 0"><div class="fill" style="width:${r.pct}%;background:${r.a.color}"></div><div class="mark buf" style="left:${r.buf}%"></div></div></div>`).join('') || '<div class="empty">No configured payout estimates.</div>'}</div></div>
+  </div>
+
+  <div class="dash">
+    <div class="panel">
+      <div class="row" style="align-items:center;margin-bottom:6px"><h2 style="flex:1 1 auto">Log a day</h2><div class="fix" style="width:150px"><label for="logDate">Date</label><input type="date" id="logDate" value="${d}"></div></div>
+      <div class="tablewrap"><table class="logtable"><thead><tr><th>Account</th><th class="num">Need / day</th><th class="num">Max day</th><th>P&amp;L</th></tr></thead><tbody>
+      ${active.map(a => { const c = calcs[a.id]; return `<tr><td><span class="dot" style="background:${a.color}"></span> ${nm(a)}</td><td class="num">${c.f.referenceOnly ? 'Review rules' : c.needed > 0 ? money(c.perDay) : '<span class="pos">done</span>'}</td><td class="num">${c.f.referenceOnly ? '—' : money(c.maxDay)}</td><td><input type="number" step="0.01" placeholder="0" data-log="${a.id}" id="log-${a.id}"></td></tr>`; }).join('')}
+      </tbody></table></div>
+      <div class="row" style="margin-top:12px;align-items:center"><span class="help" style="flex:1 1 auto;margin:0">Blank rows are skipped. Re-logging a date replaces it.</span><button class="btn primary fix" data-action="log-days">Log day</button></div>
+    </div>
+    <div class="panel">${calendar(ui.calMonth || today().slice(0, 7))}</div>
+  </div>
+
+  <section class="stack" style="gap:12px">
+    <div class="group-h"><h2>Accounts</h2><span class="count">${active.length} active${readyCount ? ` · ${readyCount} ready to request` : ''}</span></div>
+    ${active.length ? `<div class="grid cards">${ordered.map(a => accountCard(a, calcs[a.id])).join('')}</div>` : '<div class="empty">No active accounts. Add one below.</div>'}
+  </section>
+
+  <details class="panel flat" id="add-account-form"><summary>Add account</summary><p class="help">Choose a plan and your current stage. Balances and P&amp;L stay manual. Firm library plans do not calculate payout eligibility.</p>
+    <div class="row" style="margin-top:14px">
+      <div><label for="naName">Name</label><input id="naName" placeholder="My trading account"></div>
+      <div><label for="naFirm">Rule set</label><select id="naFirm"><optgroup label="Firm library">${catalogOptions()}</optgroup><optgroup label="Your rule sets">${Object.values(state.firms).map(f => `<option value="${f.id}">${esc(f.name)}</option>`).join('')}</optgroup></select></div><div><label for="naStage">Stage</label><select id="naStage"></select></div>
+      <div><label for="naSize">Account size</label><input id="naSize" type="number" list="catalogSizes" min="1" placeholder="50000"><datalist id="catalogSizes"></datalist></div>
+      <div><label for="naBal">Current balance</label><input id="naBal" type="number" placeholder="50000"></div>
+      <div><label for="naWin">Win days so far</label><input id="naWin" type="number" value="0"></div>
+      <div><label for="naCost">Eval cost (optional)</label><input id="naCost" type="number" placeholder="adds to expenses"></div>
+      <button class="btn primary fix" data-action="add-account">Add</button>
+    </div></details>
+
+  <details class="panel flat"><summary>Firm rule sets</summary>
+    <div class="stack" style="margin-top:14px;gap:14px">
+      <div class="grid cards">${Object.values(state.firms).map(firmCard).join('')}</div>
+      <div class="row"><div><label for="newFirmName">New rule set name</label><input id="newFirmName" placeholder="Apex 50k"></div><button class="btn fix" data-action="firm-add">Add rule set</button></div>
+    </div></details>
+
+  ${state.accounts.some(a => a.status !== 'active') ? `<details class="panel flat"><summary>Archived accounts (${state.accounts.filter(a => a.status !== 'active').length})</summary>
+    <div class="grid cards" style="margin-top:14px">${state.accounts.filter(a => a.status !== 'active').map(a => accountCard(a, calcs[a.id])).join('')}</div></details>` : ''}
+  </div>`;
+}
+
+function accountCard(a, c) {
+  const f = c.f;
+  const span = Math.max(1, c.tier.balance - a.startBalance);
+  const prog = (c.balance - a.startBalance) / span;
+  const fillW = Math.min(100, Math.max(0, prog * 100));
+  const bufX = Math.min(100, Math.max(0, ((f.buffer || 0) - a.startBalance) / span * 100));
+  const over = c.balance - (f.buffer || a.startBalance), rpct = c.tier.amount ? Math.max(0, over) / c.tier.amount * 100 : 0;
+  const editing = ui.editing[a.id], showHist = ui.history[a.id], paying = ui.payout[a.id], confirming = ui.confirm[a.id];
+  const consText = c.bestDay == null ? 'best day not set' : c.consistencyNow === Infinity ? 'no profit yet' : Math.round(c.consistencyNow * 100) + '% of profit (max ' + f.consistency + '%)';
+  const gate = (ok, text, warn) => `<div class="gate ${ok ? 'ok' : warn ? 'warn' : 'no'}"><span class="ic">${ok ? '✓' : warn ? '!' : '○'}</span><span>${text}</span></div>`;
+  return `<div class="panel acct ${c.ready ? 'ready' : ''}" id="acct-${a.id}">
+    <div class="head"><span class="dot" style="background:${a.color}"></span><h3>${nm(a)}</h3>
+      ${f.referenceOnly ? '<span class="pill">Manual</span>' : a.status !== 'active' ? `<span class="pill">${esc(a.status)}</span>` : c.ready ? '<span class="pill accent">Ready</span>' : c.buffered ? '<span class="pill good">Buffer secured</span>' : '<span class="pill">Building buffer</span>'}</div>
+    ${f.referenceOnly ? `    <div class="bal"><div><span class="v">${money(c.balance)}</span><div class="small muted">${esc(f.name)}</div></div></div>
+    <p class="help">Review firm rules for payout eligibility. Balance, P&amp;L and payout history are entered manually.</p>
+    <div class="meta">Logged profit <b>${money(c.profitWindow,{sign:true,cents:true})}</b> · Payouts <b>${money(c.sumPay,{cents:true})}</b></div>
+    <button type="button" class="btn small ghost" data-action="view-rules" data-program="${esc(f.catalogId || '')}">View firm rules ↗</button>
+` : `    <div class="bal"><div><span class="v">${money(c.balance)}</span><div class="small muted">${esc(f.name)}${c.payoutsTaken ? ` · ${c.payoutsTaken} payout${c.payoutsTaken === 1 ? '' : 's'} taken` : ''}</div><div class="small" style="margin-top:4px">${a.status !== 'active' ? '' : c.ready ? '<span class="pos">Ready to request</span>' : c.daysLeft === 0 ? 'Win days done · balance short' : `<b class="num">${c.daysLeft}</b> win day${c.daysLeft === 1 ? '' : 's'} to payout`}</div></div><div class="ringbox" title="Over buffer ${money(over, { sign: true })} of ${money(c.tier.amount)} max payout">${ring(rpct, 56, a.color, over >= 0 ? moneyK(over) : '<' + moneyK(0))}<span class="help" style="margin:0">of ${money(c.tier.amount)}</span></div></div>
+    <div>
+      <div class="bar"><div class="fill ${prog < 0 ? 'neg' : ''}" style="width:${prog < 0 ? 2 : fillW}%"></div><div class="mark buf" style="left:${bufX}%" title="Buffer ${money(f.buffer)}"></div></div>
+      <div class="barlabels"><span>${money(a.startBalance)}</span><span style="color:var(--info)">buffer ${money(f.buffer)}</span><span>${money(c.tier.balance)} → ${money(c.tier.amount)}</span></div>
+    </div>
+    <div class="gates">
+      ${gate(c.needForBalance <= 0, c.needForBalance <= 0 ? 'Balance target reached' : `Balance: need <b class="num">${money(c.needForBalance)}</b> more`)}
+      ${gate(c.daysLeft === 0, c.daysLeft === 0 ? `${c.winDays} of ${f.winDays} win days done` : `<b class="num">${c.daysLeft}</b> more win day${c.daysLeft === 1 ? '' : 's'} (${c.winDays} of ${f.winDays})`)}
+      ${gate(c.bestDay != null && c.consistencyOk, `Consistency: ${consText}${c.needForConsistency > 0 ? ` · need <b class="num">${money(c.needForConsistency)}</b> more profit` : ''}`, c.bestDay == null || (c.bestDay != null && !c.consistencyOk))}
+      ${c.floorBreach ? gate(false, `Below min balance ${money(f.minBalance)}`, true) : ''}
+    </div>
+    <div class="meta">${c.needed > 0 ? `To request: <b>${money(c.needed)}</b>${c.daysLeft ? ` · about <b>${money(c.perDay)}</b> per day` : ''}<span class="sep">·</span>` : ''}Max day <b>${money(c.maxDay)}</b><span class="sep">·</span>Best day ${c.bestDay == null ? 'not set' : `<b>${money(c.bestDay)}</b>`}<span class="sep">·</span>Profit ${f.consistencyResets ? 'this cycle' : 'lifetime'} <b class="${pnlClass(c.profitWindow)}">${money(c.profitWindow, { sign: true })}</b>${f.minPayout && f.minPayoutBalance ? `<span class="sep">·</span>Min payout <b>${money(f.minPayout)}</b> from <b>${money(f.minPayoutBalance)}</b>${c.balance >= f.minPayoutBalance && c.daysLeft === 0 && c.consistencyOk && c.bestDay != null ? ' <span class="pos">available</span>' : ''}` : ''}</div>
+`}
+    <div class="actions">
+      ${a.status === 'active' ? `<button class="btn small ${c.ready ? 'gold' : ''}" data-action="payout-open" data-id="${a.id}" ${c.ready ? '' : 'title="Not all gates are met yet"'}>Log payout</button>` : ''}
+      <button class="btn small ghost" data-action="edit-open" data-id="${a.id}">${editing ? 'Close' : 'Edit'}</button>
+      <button class="btn small ghost" data-action="hist-open" data-id="${a.id}">${showHist ? 'Hide history' : 'History'} (${a.days.length})</button>
+    </div>
+    ${paying ? `<div class="sub"><div class="row">
+      <div><label for="po-amt-${a.id}">Payout amount</label><input type="number" id="po-amt-${a.id}" value="${c.tier.amount}"></div>
+      <div><label for="po-date-${a.id}">Date</label><input type="date" id="po-date-${a.id}" value="${today()}"></div>
+      <button class="btn primary fix" data-action="payout-save" data-id="${a.id}">Record</button>
+      <button class="btn fix ghost" data-action="payout-open" data-id="${a.id}">Cancel</button></div>
+      <div class="help">Subtracts the amount from the balance${f.consistencyResets ? ', resets win days and consistency for the next cycle' : ' and resets win days for the next cycle'}. Balance after: ${money(c.balance - c.tier.amount)}.${!c.ready ? ' Gates are not all green. Record anyway only if the firm approved it.' : ''}</div></div>` : ''}
+    ${editing ? `<div class="sub"><div class="row">
+      <div><label for="ed-name-${a.id}">Name</label><input id="ed-name-${a.id}" value="${esc(a.name)}"></div>
+      <div><label for="ed-firm-${a.id}">Rule set</label><select id="ed-firm-${a.id}">${Object.values(state.firms).map(x => `<option value="${x.id}" ${x.id === a.firm ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+      <div><label for="ed-bal-${a.id}">Set balance to</label><input type="number" id="ed-bal-${a.id}" value="${c.balance}"></div>
+      <div><label for="ed-win-${a.id}">Win days this cycle</label><input type="number" id="ed-win-${a.id}" value="${c.winDays}"></div>
+      <div><label for="ed-best-${a.id}">Best day so far</label><input type="number" id="ed-best-${a.id}" value="${c.bestDay ?? ''}" placeholder="unknown"></div>
+      <div><label for="ed-status-${a.id}">Status</label><select id="ed-status-${a.id}">${['active', 'blown', 'closed'].map(s => `<option ${s === a.status ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+      <button class="btn primary fix" data-action="edit-save" data-id="${a.id}">Save</button>
+    </div>
+    <div class="row" style="align-items:center">
+      ${confirming ? `<div class="confirm" style="flex:1 1 auto"><span>Delete this account and its history?</span><button class="btn small danger" data-action="delete-account" data-id="${a.id}">Yes, delete</button><button class="btn small ghost" data-action="confirm-cancel" data-id="${a.id}">Keep</button></div>`
+        : `<button class="btn small ghost" data-action="confirm-open" data-id="${a.id}" style="color:var(--bad)">Delete account</button>`}
+    </div></div>` : ''}
+    ${showHist ? `<div class="sub">${a.days.length || a.payouts.length ? `<div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th class="num">Amount</th><th></th></tr></thead><tbody>
+      ${[...a.days.map(x => ({ ...x, kind: 'day' })), ...a.payouts.map(x => ({ ...x, kind: 'payout' }))].sort((x, y) => y.ts - x.ts).map(x => `<tr>
+        <td class="num">${x.date}</td><td>${x.kind === 'day' ? (x.pnl > 0 && x.pnl >= (f.winDayMin || 0) ? '<span class="pos">win day</span>' : x.pnl < 0 ? '<span class="neg">loss day</span>' : 'flat') : '<span style="color:var(--yellow)">payout</span>'}</td>
+        <td class="num ${x.kind === 'day' ? pnlClass(x.pnl) : ''}">${x.kind === 'day' ? money(x.pnl, { sign: true, cents: true }) : '-' + money(x.amount)}</td>
+        <td style="text-align:right"><button class="btn small ghost" data-action="del-entry" data-id="${a.id}" data-kind="${x.kind}" data-eid="${x.id}">✕</button></td></tr>`).join('')}
+      </tbody></table></div>` : '<span class="small muted">No days logged yet. Balance and win days come from the seed values.</span>'}</div>` : ''}
+  </div>`;
+}
+
+/* ---------- firm rule sets ---------- */
+function firmCard(f) {
+  if (f.referenceOnly) return `<div class="panel stack"><h3>${esc(f.name)}</h3><p class="help">${esc(f.notes)}</p><button class="btn small" data-action="view-rules" data-program="${esc(f.catalogId)}">View firm rules ↗</button></div>`;
+  const id = f.id, inUse = state.accounts.filter(a => a.firm === id).length;
+  return `<div class="panel stack" style="gap:10px" id="firm-${id}">
+    <div class="row" style="align-items:center"><h3 style="flex:1 1 auto">${esc(f.name)}</h3><span class="small muted fix">${inUse} account${inUse === 1 ? '' : 's'}</span></div>
+    <div class="row">
+      <div><label for="f-name-${id}">Name</label><input id="f-name-${id}" value="${esc(f.name)}"></div>
+      <div><label for="f-size-${id}">Account size</label><input type="number" id="f-size-${id}" value="${f.size}"></div>
+      <div><label for="f-buffer-${id}">Buffer balance</label><input type="number" id="f-buffer-${id}" value="${f.buffer}"></div>
+    </div>
+    <div><label>Payout tiers</label><div class="tiers" id="tiers-${id}">
+      ${f.tiers.map((t, i) => `<div class="tier">
+        <div><span class="help">Up to payout #</span><input type="number" data-tier="upTo" value="${t.upTo ?? ''}" placeholder="all"></div>
+        <div><span class="help">Balance needed</span><input type="number" data-tier="balance" value="${t.balance}"></div>
+        <div><span class="help">Payout amount</span><input type="number" data-tier="amount" value="${t.amount}"></div>
+        <button class="btn small ghost" data-action="tier-del" data-id="${id}" data-i="${i}" title="Remove tier">✕</button></div>`).join('')}
+    </div><div class="help">Tiers are checked in order. Leave "up to" blank for "every payout after this".</div>
+    <button class="btn small ghost" data-action="tier-add" data-id="${id}" style="margin-top:6px">+ tier</button></div>
+    <div class="row">
+      <div><label for="f-win-${id}">Win days required</label><input type="number" id="f-win-${id}" value="${f.winDays}"></div>
+      <div><label for="f-winmin-${id}">Min profit for a win day</label><input type="number" id="f-winmin-${id}" value="${f.winDayMin || 0}"></div>
+      <div><label for="f-cons-${id}">Consistency %</label><input type="number" id="f-cons-${id}" value="${f.consistency}"></div>
+      <div><label for="f-reset-${id}">Consistency window</label><select id="f-reset-${id}"><option value="1" ${f.consistencyResets ? 'selected' : ''}>Resets after each payout</option><option value="0" ${!f.consistencyResets ? 'selected' : ''}>Never resets (lifetime)</option></select></div>
+    </div>
+    <div class="row">
+      <div><label for="f-min-${id}">Min balance (floor)</label><input type="number" id="f-min-${id}" value="${f.minBalance ?? ''}" placeholder="none"></div>
+      <div><label for="f-dl-${id}">Max drawdown</label><input type="number" id="f-dl-${id}" value="${f.dailyLoss ?? ''}" placeholder="none"></div>
+      <div><label for="f-minpay-${id}">Min payout</label><input type="number" id="f-minpay-${id}" value="${f.minPayout ?? ''}" placeholder="none"></div>
+      <div><label for="f-minpaybal-${id}">Balance for min payout</label><input type="number" id="f-minpaybal-${id}" value="${f.minPayoutBalance ?? ''}" placeholder="none"></div>
+    </div>
+    <div><label for="f-notes-${id}">Notes</label><textarea id="f-notes-${id}" style="min-height:60px">${esc(f.notes || '')}</textarea></div>
+    <div class="row" style="align-items:center">
+      <button class="btn primary fix" data-action="firm-save" data-id="${id}">Save rule set</button>
+      ${inUse ? '<span class="small muted">In use, cannot delete</span>' : `<button class="btn small ghost fix" data-action="firm-del" data-id="${id}" style="color:var(--bad)">Delete</button>`}
+    </div>
+  </div>`;
+}
+
+/* ---------- payouts page ---------- */
+const firmKey = s => String(s || '').trim().split(/\s+/)[0].toLowerCase();
+function renderPayouts() {
+  const rows = []; state.accounts.forEach(a => a.payouts.forEach(p => rows.push({ ...p, acct: a })));
+  rows.sort((x, y) => (y.date + y.ts).localeCompare(x.date + x.ts));
+  const totPay = rows.reduce((s, p) => s + p.amount, 0), totExp = state.expenses.reduce((s, e) => s + e.cost, 0), net = totPay - totExp;
+  const roi = totExp > 0 ? net / totExp * 100 : null;
+  const byFirm = {}; const bucket = k => (byFirm[k] = byFirm[k] || { label: '', pay: 0, exp: 0, n: 0 });
+  state.accounts.forEach(a => { const f = firmOf(a); const k = firmKey(f ? f.name : a.name); const b = bucket(k); b.label = b.label || (f ? f.name.split(' ')[0] : a.name); b.pay += a.payouts.reduce((s, p) => s + p.amount, 0); });
+  state.expenses.forEach(e => { const b = bucket(firmKey(e.firm)); b.label = b.label || e.firm.trim().split(/\s+/)[0]; b.exp += e.cost; b.n += e.qty ?? 1; });
+  const firms = Object.values(byFirm).filter(b => b.pay || b.exp).sort((x, y) => (y.pay - y.exp) - (x.pay - x.exp));
+  const active = state.accounts.filter(a => a.status === 'active');
+  const calcs = Object.fromEntries(active.map(a => [a.id, calc(a)]));
+  const proj = active.map(a => { const c = calcs[a.id]; const over = c.balance - (c.f.buffer || a.startBalance); const max = c.tier.amount || 0; return { a, c, over, max, pct: max ? Math.max(0, over) / max * 100 : 0 }; }).sort((x, y) => y.pct - x.pct);
+  const ratio = ratioOf(active, calcs);
+  const months = byMonth(rows);
+  return `<div class="stack">
+  ${statTiles([
+    ...commonTiles(totPay, totExp, rows.length),
+    tile('roi', 'Return on expenses', `<span class="${roi == null ? '' : pnlClass(roi)}">${roi == null ? '—' : (roi > 0 ? '+' : '') + roi.toFixed(0) + '%'}</span>`, 'net ÷ expenses'),
+    { key: 'ratio', html: `<div class="panel stat withring hero"><div><span class="eyebrow">Realized / potential</span><span class="v">${money(ratio.over)}</span><span class="small muted">of ${money(ratio.max)} in max payouts</span></div>${ring(ratio.pct, 56, 'var(--rose)', '')}</div>` }
+  ])}
+  <div class="dash wide">
+    <div class="panel span2"><h2>Payout projection</h2><div class="help" style="margin-bottom:10px">Realized net over the buffer (balance − buffer balance) against the max payout of the next tier. The buffer can never be withdrawn, so this is the part of the next payout already earned.</div>
+      ${proj.length ? `<div class="tablewrap"><table><thead><tr><th>Account</th><th class="num">Balance</th><th class="num">Buffer</th><th class="num">Over buffer</th><th class="num">Max payout</th><th style="min-width:150px">Realized / potential</th></tr></thead><tbody>
+      ${proj.map(r => `<tr><td><span class="dot" style="background:${r.a.color}"></span> ${nm(r.a)}</td><td class="num">${money(r.c.balance)}</td><td class="num muted">${money(r.c.f.buffer)}</td><td class="num ${pnlClass(r.over)}">${money(r.over, { sign: true })}</td><td class="num">${money(r.max)}</td>
+        <td><div class="bar" style="margin:0"><div class="fill ${r.over < 0 ? 'neg' : ''}" style="width:${Math.min(100, Math.max(0, r.pct))}%;background:${r.over < 0 ? '' : r.a.color}"></div></div></td></tr>`).join('')}
+      <tr><td colspan="3" style="text-align:right;color:var(--muted)">All active accounts</td><td class="num ${pnlClass(ratio.over)}"><b>${money(ratio.over, { sign: true })}</b></td><td class="num"><b>${money(ratio.max)}</b></td><td class="muted small">${money(ratio.over)} of ${money(ratio.max)}</td></tr>
+      </tbody></table></div>` : '<span class="muted small">No active accounts.</span>'}</div>
+    <div class="panel"><h2>Payouts by month</h2><div class="help" style="margin-bottom:8px">Every recorded payout, all accounts.</div>${barChart(months, { empty: 'No payouts yet.', fmt: money, color: 'var(--good)', label: 'Payouts by month', h: 210 })}</div>
+  </div>
+  <div class="dash">
+    <div class="panel"><h2>Record a payout</h2>
+      <div class="row" style="margin-top:10px">
+        <div><label for="pyAcct">Account</label><select id="pyAcct">${state.accounts.map(a => `<option value="${a.id}">${nm(a)}${a.status !== 'active' ? ' (' + a.status + ')' : ''}</option>`).join('')}</select></div>
+        <div class="fix" style="width:120px"><label for="pyAmt">Amount</label><input id="pyAmt" type="number" step="0.01" placeholder="1250"></div>
+        <div class="fix" style="width:150px"><label for="pyDate">Date</label><input id="pyDate" type="date" value="${today()}"></div>
+        <button class="btn primary fix" data-action="payout-add">Record</button>
+      </div><div class="help">Subtracts the amount from that account's balance and starts a new cycle.</div></div>
+    <div class="panel"><h2>By firm</h2>
+      ${firms.length ? `<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Firm</th><th class="num">Bought</th><th class="num">Payouts</th><th class="num">Expenses</th><th class="num">Net</th></tr></thead><tbody>
+      ${firms.map(b => `<tr><td>${esc(b.label)}</td><td class="num">${b.n}</td><td class="num pos">${money(b.pay)}</td><td class="num neg">${money(b.exp)}</td><td class="num ${pnlClass(b.pay - b.exp)}">${money(b.pay - b.exp, { sign: true })}</td></tr>`).join('')}
+      </tbody></table></div><div class="help">Matched on the first word of the firm name.</div>` : '<span class="muted small">Nothing yet.</span>'}</div>
+  </div>
+  <div class="panel"><h2>All payouts</h2>
+    ${rows.length ? `<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Date</th><th>Account</th><th class="num">Amount</th><th class="num">Balance after</th><th></th></tr></thead><tbody>
+    ${rows.map(p => `<tr><td class="num">${p.date}</td><td><span class="dot" style="background:${p.acct.color}"></span> ${nm(p.acct)}</td><td class="num pos">${money(p.amount, { cents: true })}</td><td class="num muted">${money(p.balanceAfter)}</td><td style="text-align:right"><button class="btn small ghost" data-action="del-entry" data-id="${p.acct.id}" data-kind="payout" data-eid="${p.id}">✕</button></td></tr>`).join('')}
+    </tbody></table></div>` : '<div class="empty">No payouts yet. The first one lands here when you hit Log payout on a card, or record one above.</div>'}
+  </div>
+  </div>`;
+}
+
+/* ---------- expenses page ---------- */
+function renderExpenses() {
+  const byFirm = {}; state.expenses.forEach(e => { byFirm[e.firm] = (byFirm[e.firm] || 0) + e.cost; });
+  const tot = state.expenses.reduce((s, e) => s + e.cost, 0);
+  const totPay = state.accounts.reduce((s, a) => s + a.payouts.reduce((x, p) => x + p.amount, 0), 0);
+  const firmBars = Object.entries(byFirm).sort((x, y) => y[1] - x[1]).map(([k, v]) => ({ label: k, value: v }));
+  return `<div class="stack">
+  ${statTiles([...commonTiles(totPay, tot, null)])}
+  <div class="dash">
+    <div class="panel"><h2>Add expense</h2>
+      <div class="row" style="margin-top:10px">
+        <div><label for="exFirm">Prop firm</label><input id="exFirm" list="firmNames" placeholder="FFF"><datalist id="firmNames">${[...new Set([...Object.values(state.firms).map(f => f.name.split(' ')[0]), ...state.expenses.map(e => e.firm)])].map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
+        <div class="fix" style="width:90px"><label for="exSize">Size</label><input id="exSize" placeholder="50k"></div>
+        <div class="fix" style="width:110px"><label for="exCost">Cost each</label><input id="exCost" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="fix" style="width:70px"><label for="exQty">Qty</label><input id="exQty" type="number" min="1" step="1" value="1"></div>
+        <div><label for="exNote">Note</label><input id="exNote" placeholder="eval, reset, activation…"></div>
+        <button class="btn primary fix" data-action="expense-add">Add</button>
+      </div></div>
+    <div class="panel"><h2>Spend by firm</h2><div class="help" style="margin-bottom:8px">Total paid per firm.</div>${barChart(firmBars, { empty: 'No expenses yet.', fmt: money, color: 'var(--bad)', label: 'Spend by firm', h: 200 })}</div>
+  </div>
+  <div class="panel"><h2>All expenses</h2>
+    ${state.expenses.length ? `<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>Firm</th><th>Size</th><th>Note</th><th class="num">Qty</th><th class="num">Each</th><th class="num">Total</th><th></th></tr></thead><tbody>
+    ${[...state.expenses].reverse().map(e => `<tr><td>${esc(e.firm)}</td><td>${esc(e.size)}</td><td class="muted">${esc(e.note)}</td><td class="num">${e.qty ?? 1}</td><td class="num muted">${money(e.unit ?? e.cost, { cents: true })}</td><td class="num neg">${money(e.cost, { cents: true })}</td><td style="text-align:right"><button class="btn small ghost" data-action="expense-del" data-id="${e.id}">✕</button></td></tr>`).join('')}
+    </tbody></table></div>` : '<div class="empty">No expenses yet. Evaluation fees, resets and activations go here.</div>'}
+  </div></div>`;
+}
+
+
+/* ---------- actions ---------- */
+const num = id => { const el = document.getElementById(id); if (!el) return null; const v = el.value.trim(); return v === '' ? null : Number(v); };
+const val = id => (document.getElementById(id)?.value ?? '').trim();
+
+document.getElementById('view').addEventListener('change', e => {
+  if (e.target.dataset.action === 'stats-toggle') { statsOn()[e.target.dataset.key] = e.target.checked; save(); render(); }
+});
+document.getElementById('view').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+  if (e.target.dataset.log) act('log-days');
+});
+document.addEventListener('click', e => { if (ui.statsEdit && !e.target.closest('.dd')) { ui.statsEdit = false; render(); } });
+document.getElementById('view').addEventListener('click', e => {
+  const b = e.target.closest('[data-action]'); if (!b || b.tagName === 'INPUT' || b.tagName === 'SELECT') return;
+  if (b.tagName === 'BUTTON') e.preventDefault();
+  act(b.dataset.action, b.dataset, b);
+});
+
+async function act(action, d = {}, el) {
+  const A = () => state.accounts.find(x => x.id === d.id);
+  switch (action) {
+    case 'view-rules': window.parent.postMessage({type:'icarus:show-rules', program:d.program}, '*'); break;
+    case 'log-days': {
+      const date = val('logDate') || today(); let n = 0;
+      state.accounts.filter(a => a.status === 'active').forEach(a => {
+        const v = num('log-' + a.id); if (v == null || isNaN(v)) return;
+        a.days = a.days.filter(x => x.date !== date);
+        a.days.push({ id: uid(), date, pnl: v, ts: Date.now() }); n++;
+      });
+      if (!n) return toast('Nothing to log');
+      save(); render(); toast(`Logged ${n} account${n === 1 ? '' : 's'} for ${date}`); break;
+    }
+    case 'add-account': {
+      const name = val('naName'), size = num('naSize'), bal = num('naBal');
+      if (!name || !Number.isFinite(size) || size <= 0) return toast('Name and a positive account size are required');
+      let firmId = val('naFirm');
+      if (firmId.startsWith('catalog:')) {
+        const rule = catalogRule(firmId.slice(8), size, val('naStage'));
+        if (!rule) return toast('Choose a firm plan');
+        firmId = rule.id;
+        if (!state.firms[firmId]) state.firms[firmId] = rule;
+      }
+      if (!state.firms[firmId]) return toast('Choose a rule set');
+      const cost = num('naCost');
+      state.accounts.push({ id: uid(), name, firm: firmId, size, startBalance: size, seedBalance: bal ?? size, seedWinDays: num('naWin') || 0, seedBestDay: null, color: COLORS[state.accounts.length % COLORS.length], status: 'active', days: [], payouts: [], createdAt: Date.now() });
+      if (cost) state.expenses.push({ id: uid(), firm: state.firms[firmId]?.name.split(' ')[0] || '', size: size >= 1000 ? Math.round(size / 1000) + 'k' : String(size), unit: cost, qty: 1, cost, note: 'eval · ' + name, ts: Date.now() });
+      save(); render(); toast('Account added'); break;
+    }
+    case 'edit-open': ui.editing[d.id] = !ui.editing[d.id]; ui.confirm[d.id] = false; render(); break;
+    case 'hist-open': ui.history[d.id] = !ui.history[d.id]; render(); break;
+    case 'payout-open': ui.payout[d.id] = !ui.payout[d.id]; render(); break;
+    case 'confirm-open': ui.confirm[d.id] = true; render(); break;
+    case 'confirm-cancel': ui.confirm[d.id] = false; render(); break;
+    case 'edit-save': {
+      const a = A(), c = calc(a);
+      a.name = val('ed-name-' + a.id) || a.name; a.firm = val('ed-firm-' + a.id); a.status = val('ed-status-' + a.id);
+      const nb = num('ed-bal-' + a.id); if (nb != null) a.seedBalance += nb - c.balance;
+      const nw = num('ed-win-' + a.id); if (nw != null) { const c2 = calc(a); a.seedWinDays = (a.seedWinDays || 0) + (nw - c2.winDays); }
+      a.seedBestDay = num('ed-best-' + a.id);
+      ui.editing[a.id] = false; save(); render(); toast('Saved'); break;
+    }
+    case 'delete-account': { state.accounts = state.accounts.filter(x => x.id !== d.id); save(); render(); toast('Account deleted'); break; }
+    case 'payout-save': {
+      const a = A(), c = calc(a); const amt = num('po-amt-' + a.id); if (!amt) return toast('Enter an amount');
+      a.payouts.push({ id: uid(), date: val('po-date-' + a.id) || today(), amount: amt, ts: Date.now(), balanceAfter: c.balance - amt });
+      a.seedWinDays = 0; if (c.f.consistencyResets) a.seedBestDay = null; ui.payout[a.id] = false; save(); render(); toast(`Payout of ${money(amt)} recorded`); break;
+    }
+    case 'del-entry': { const a = A(); if (d.kind === 'day') a.days = a.days.filter(x => x.id !== d.eid); else a.payouts = a.payouts.filter(x => x.id !== d.eid); save(); render(); break; }
+    case 'firm-save': {
+      const f = state.firms[d.id]; const id = d.id;
+      f.name = val('f-name-' + id) || f.name; f.size = num('f-size-' + id) ?? f.size; f.buffer = num('f-buffer-' + id) ?? f.buffer;
+      f.tiers = [...document.querySelectorAll(`#tiers-${id} .tier`)].map(t => ({ upTo: t.querySelector('[data-tier=upTo]').value.trim() === '' ? null : Number(t.querySelector('[data-tier=upTo]').value), balance: Number(t.querySelector('[data-tier=balance]').value), amount: Number(t.querySelector('[data-tier=amount]').value) })).filter(t => !isNaN(t.balance));
+      f.winDays = num('f-win-' + id) ?? f.winDays; f.winDayMin = num('f-winmin-' + id) ?? 0; f.consistency = num('f-cons-' + id) ?? f.consistency;
+      f.consistencyResets = val('f-reset-' + id) === '1'; f.minBalance = num('f-min-' + id); f.dailyLoss = num('f-dl-' + id); f.minPayout = num('f-minpay-' + id); f.minPayoutBalance = num('f-minpaybal-' + id); f.notes = val('f-notes-' + id);
+      save(); render(); toast('Rule set saved'); break;
+    }
+    case 'tier-add': { act('firm-save', d); state.firms[d.id].tiers.push({ upTo: null, balance: state.firms[d.id].size, amount: 0 }); save(); render(); break; }
+    case 'tier-del': { state.firms[d.id].tiers.splice(Number(d.i), 1); save(); render(); break; }
+    case 'firm-add': { const n = val('newFirmName'); if (!n) return; const id = uid(); state.firms[id] = { id, name: n, size: 50000, buffer: 52000, tiers: [{ upTo: null, balance: 54000, amount: 1000 }], winDays: 5, consistency: 30, consistencyResets: false, minBalance: null, dailyLoss: null, winDayMin: 0, notes: '' }; save(); render(); toast('Rule set added. Fill in its numbers.'); break; }
+    case 'firm-del': { if (state.accounts.some(a => a.firm === d.id)) return; delete state.firms[d.id]; save(); render(); break; }
+    case 'expense-add': {
+      const unit = num('exCost'), qty = Math.max(1, Math.round(num('exQty') || 1));
+      if (!val('exFirm') || unit == null) return toast('Firm and cost are required');
+      state.expenses.push({ id: uid(), firm: val('exFirm'), size: val('exSize'), unit, qty, cost: unit * qty, note: val('exNote'), ts: Date.now() });
+      save(); render(); toast(qty > 1 ? `${qty} × ${money(unit, { cents: true })} added` : 'Expense added'); break;
+    }
+    case 'stats-edit': ui.statsEdit = !ui.statsEdit; render(); break;
+    case 'cal-nav': { const [y, m] = (ui.calMonth || today().slice(0, 7)).split('-').map(Number); const nd = new Date(y, m - 1 + Number(d.dir), 1); ui.calMonth = nd.toLocaleDateString('en-CA').slice(0, 7); render(); break; }
+    case 'cal-today': ui.calMonth = null; render(); break;
+    case 'payout-add': {
+      const a = state.accounts.find(x => x.id === val('pyAcct')); const amt = num('pyAmt');
+      if (!a || !amt) return toast('Account and amount are required');
+      const c = calc(a);
+      a.payouts.push({ id: uid(), date: val('pyDate') || today(), amount: amt, ts: Date.now(), balanceAfter: c.balance - amt });
+      a.seedWinDays = 0; if (c.f.consistencyResets) a.seedBestDay = null;
+      save(); render(); toast(`Payout of ${money(amt)} recorded`); break;
+    }
+    case 'expense-del': state.expenses = state.expenses.filter(x => x.id !== d.id); save(); render(); break;
+  }
+}
+
+/* ---------- backup ---------- */
+document.getElementById('btnExport').addEventListener('click', async () => {
+  const text = JSON.stringify({ app: 'payout-ladder', exportedAt: new Date().toISOString(), state });
+  const filename = `payout-ladder-${today()}.json`;
+  try { const dl = window.claude?.use ? await window.claude.use('downloads') : null; if (dl) { await dl.save({ filename, data: text }); toast('Backup saved'); return; } } catch (e) { if (e && e.code === 'cancelled') return toast('Cancelled'); }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = filename; document.body.appendChild(a); a.click(); a.remove(); toast('Backup downloaded');
+});
+document.getElementById('btnImport').addEventListener('click', () => document.getElementById('importFile').click());
+const namesBtn = document.getElementById('btnNames');
+const syncNamesBtn = () => { namesBtn.textContent = state.hideNames ? 'Show names' : 'Hide names'; };
+namesBtn.addEventListener('click', () => { state.hideNames = !state.hideNames; save(); syncNamesBtn(); render(); toast(state.hideNames ? 'Account names hidden' : 'Account names shown'); });
+document.getElementById('importFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text()); if (data.app !== 'payout-ladder' || !data.state) throw new Error('bad');
+    state = data.state; save(); render(); toast('Backup restored');
+  } catch (err) { toast('That file is not a Icarus Account Tracker backup'); }
+  e.target.value = '';
+});
+
+/* ---------- boot ---------- */
+(async () => {
+  const loaded = await loadInitial();
+  state = loaded || seedState();
+  migrate();
+  if (!loaded) save(); // persist the first seed so every reopen starts from the same ids
+  syncNamesBtn();
+  render();
+})();
+</script>
