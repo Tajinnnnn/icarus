@@ -17,7 +17,7 @@ dashboard.html dashboard.css dashboard.js dashboard.spec
 vendor/marked.min.js vendor/read-aloud.js vendor/lightweight-charts.standalone.production.js
 vendor/LIGHTWEIGHT-CHARTS-LICENSE vendor/kokoro/kokoro.web.js vendor/kokoro/LICENSE
 '''.split() + ['appearance (C).js', 'page-swipe (C).js', 'workflow-tracker-preview (C).css', 'crews.example (C).yaml',
-             'export_source (C).py', 'account-tracker (C).html', 'prop-rules (C).js', 'prop-firm-rules (C).json',
+             'export_source (C).py', 'publish (C).sh', 'account-tracker (C).html', 'prop-rules (C).js', 'prop-firm-rules (C).json',
              'options-charts (C).js', 'tests/options-charts (C).test.cjs',
              'docs/prop-rules-lucid-fff (C).md', 'docs/prop-rules-topstep-mffu (C).md', 'docs/prop-rules-apex-alpha (C).md',
              'tests/prop-rules (C).test.cjs', 'tests/test_prop_rules.py', 'assets/icarus-falling (C).png',
