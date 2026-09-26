@@ -302,8 +302,8 @@ def rename_note(path: str, new_name: str, notes_root: Path = None, vault_root: P
 
 
 def rename_folder(path: str, new_name: str, notes_root: Path = None) -> dict:
-    # No wikilink rewrite needed here, unlike rename_note - wikilinks in
-    # this vault only ever reference note filenames, never folder paths.
+    # No wikilink rewrite needed here, unlike rename_note - wikilinks
+    # reference note filenames, never folder paths.
     notes_root = Path(notes_root) if notes_root else folder_path("notes")
     resolved = _resolve_within(notes_root, path)
     if not resolved.is_dir():
@@ -371,9 +371,9 @@ def trash_folder(path: str, notes_root: Path = None) -> dict:
     """
     Moves a folder (and everything inside it) to macOS Trash via Cocoa's
     NSFileManager, rather than shutil.rmtree - recoverable the same way
-    deleting it in Finder would be, per this vault's "never delete without
-    confirming first" rule (the confirmation itself happens client-side;
-    this is the actual deletion once that's already been confirmed).
+    deleting it in Finder would be. Nothing is deleted without confirming
+    first (the confirmation itself happens client-side; this is the actual
+    deletion once that's already been confirmed).
     """
     notes_root = Path(notes_root) if notes_root else folder_path("notes")
     resolved = _resolve_within(notes_root, path)

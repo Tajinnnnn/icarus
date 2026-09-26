@@ -1003,7 +1003,7 @@
   //   {type: "text", value: string} | {type: "image", filename: string}
   // parseToChips/chipsToText and nodesToLines/linesToNodes are pure (no DOM)
   // and are exact inverses of each other - this is the highest-risk part of
-  // the feature (see design.md), so the DOM layer below is kept as thin and
+  // the feature, so the DOM layer below is kept as thin and
   // mechanical as possible: one <div class="rich-line"> per line, one child
   // per node. Only ![[filename.ext]] image embeds get special rendering -
   // everything else stays plain, unstyled, editable text.
@@ -2633,10 +2633,10 @@
   }
 
   // ---- Accounts page (Account Tracker) ---------------------------
-  // The tracker is the single-file page in Trading/prop-tracker/ - the same
-  // file published as the claude.ai artifact - embedded in an iframe. With
-  // ?host=fleur it asks us for its data over postMessage instead of using
-  // browser storage, and we keep that JSON in the vault via the Python API.
+  // The tracker is the single-file page account-tracker (C).html, embedded
+  // in an iframe. With ?host=fleur it asks us for its data over postMessage
+  // instead of using browser storage, and we keep that JSON on disk via the
+  // Python API (see tracker.py).
 
   function trackerIcon(size) {
     // A payout ladder: three rungs climbing to a filled coin.

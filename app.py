@@ -34,9 +34,8 @@ def main():
     state.window.events.closing += on_closing
     state.window.events.loaded += configure_window_chrome
 
-    # A regular app (Dock icon + Cmd+Tab), since 2026-09-26: the window is
-    # a normal movable, resizable window. The menu-bar icon stays as a
-    # second way to show/hide it.
+    # A regular app (Dock icon + Cmd+Tab): the window is a normal movable,
+    # resizable window. The menu-bar icon stays as a second way to show/hide it.
     AppKit.NSApplication.sharedApplication().setActivationPolicy_(
         AppKit.NSApplicationActivationPolicyRegular
     )
@@ -44,19 +43,15 @@ def main():
     setup_tray()
 
     # Records the next session's IV Walls forecast and grades any session that has since
-    # closed. Vault-local writes only, so unlike the chart pusher it needs no toggle.
+    # closed. Local file writes only, so unlike the chart pusher it needs no toggle.
     if os.environ.get("ICARUS_ENABLE_WALLS_RECORDER") == "1":
         start_walls_scoreboard()
 
     # pywebview defaults private_mode to True, which would wipe local
-    # storage on every launch — not needed today (no persisted state yet)
-    # but kept off to match list-widget-mac's precedent in case the
-    # dashboard grows persisted UI state later.
-    # debug=True temporarily on to get a right-click "Inspect Element" /
-    # console for diagnosing the rewind bug (see docs/superpowers/
-    # HANDOFF-2026-08-17.md) — revert once resolved.
-    # debug=True also auto-opens the inspector window on every launch; this
-    # keeps right-click "Inspect Element" available without that.
+    # storage on every launch; kept off so persisted UI state survives.
+    # debug=True gives a right-click "Inspect Element" / console for
+    # diagnosing editor issues. It also auto-opens the inspector window on
+    # every launch; this keeps right-click "Inspect Element" without that.
     webview.settings["OPEN_DEVTOOLS_IN_DEBUG"] = False
     # Only the top nav's own background drags the window (its class is
     # pywebview-drag-region); its buttons and icons keep working as clicks.

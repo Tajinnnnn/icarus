@@ -3,14 +3,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
 /* =========================================================================
-   PAYOUT LADDER -- night and gold.
-   Dark, airy, classical. Cormorant for the inscriptions, Jost for the
-   reading, Plex Mono for every number. One antique-gold accent, hairline
-   rules, no ornament. The only Greek thing left is the restraint.
+   ACCOUNT TRACKER -- single-file page, embeddable or standalone.
    ========================================================================= */
 :root{
   color-scheme: dark;
-  /* Same tokens as the Fleur Dashboard (crew_dashboard/dashboard.css). */
+  /* Same design tokens as the dashboard shell (dashboard.css). */
   --bg:#0a090c; --panel:#151217; --panel-2:#1c181e; --line:#26212a; --line-2:#38323d; --glass:rgba(255,255,255,.03); --edge:var(--line);
   --text:#ded9db; --muted:#8a828a; --faint:#605a63;
   --rose:#cf7f97; --rose-deep:#a85f76; --amber:#d98b4a; --amber-deep:#b76f33; --ok:#82b871; --fail:#d1453f;
@@ -264,11 +261,11 @@ function catalogRule(id, size, stage) {
 }
 let state = null;
 
-/* ---------- storage: Fleur Dashboard bridge, or browser storage ----------
+/* ---------- storage: dashboard bridge, or browser storage ----------
    Inside Icarus the page is embedded with ?host=fleur and asks
    the dashboard for its data over postMessage; the dashboard keeps it as a
-   JSON file in the vault. Anywhere else (artifact, local file) it uses
-   localStorage. */
+   JSON file on disk. Opened anywhere else (a plain local file, a hosted
+   page) it uses localStorage. */
 const inFleur = (() => { try { return new URLSearchParams(location.search).get('host') === 'fleur' && window.parent !== window; } catch (e) { return false; } })();
 function bridgeLoad() {
   return new Promise(res => {

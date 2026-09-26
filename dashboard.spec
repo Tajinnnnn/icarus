@@ -69,8 +69,8 @@ app = BUNDLE(
     icon="icon.icns",
     bundle_identifier="local.icarus.dashboard",
     info_plist={
-        # Menu-bar-only utility, matching list-widget-mac: no Dock icon or
-        # Cmd+Tab entry, reachable only via the tray icon.
+        # Bundle metadata. app.py sets the activation policy at runtime, so
+        # the Dock icon is controlled there rather than by this flag alone.
         "LSUIElement": True,
         "CFBundleName": "Icarus",
         "CFBundleDisplayName": "Icarus",

@@ -29,7 +29,7 @@ def position_near_menu_bar():
 
 
 def show_window(icon=None, item=None):
-    # Since 2026-09-26 the window keeps wherever the user last put it -
+    # The window keeps wherever the user last put it -
     # position_near_menu_bar() is kept for reference but no longer called.
     if state.window is None:
         return

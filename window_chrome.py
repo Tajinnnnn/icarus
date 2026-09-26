@@ -28,8 +28,8 @@ def configure_window_chrome():
     # pywebview's drag region: .topnav carries the pywebview-drag-region
     # class (dashboard.js), and pywebview's injected script turns a drag
     # on it into window.move() - which works for a borderless window too.
-    # (Tried a titled window with a transparent title bar on 2026-09-26;
-    # it left a visible strip above the content, so this is the way.)
+    # (A titled window with a transparent title bar was tried; it left a
+    # visible strip above the content, so this is the way.)
     def _apply():
         try:
             ns_window = state.window.native

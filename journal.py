@@ -8,7 +8,7 @@ from preferences import folder_path
 DAILY_DIR = VAULT_ROOT / "01 Journals" / "daily"
 TRADE_DIR = VAULT_ROOT / "Trading" / "journal"
 
-# (data key, real heading text from 01 Journals/_daily-template.md)
+# (data key, heading text expected in the daily journal template)
 SECTIONS = [
     ("what_would_make_today_great", "What would make today great"),
     ("notes_captures", "Notes / captures throughout the day"),
@@ -16,7 +16,7 @@ SECTIONS = [
     ("could_have_been_better", "How today could've been better"),
 ]
 
-# (data key, real heading text from Trading/journal/_trade-template.md)
+# (data key, heading text expected in the trade journal template)
 TRADE_SECTIONS = [
     ("trade_taken", "Trade taken"),
     ("reasoning", "Reasoning"),

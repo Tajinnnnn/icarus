@@ -27,13 +27,13 @@ FILLED = """# {date}
 
 ## What would make today great
 1. Ship the dashboard rewrite
-2. Get to the gym
+2. Review the release notes
 3.
 
 ## Notes / captures throughout the day
 *Anything worth remembering. Will be reviewed at end of day. Use `[[wikilinks]]` for people, projects, concepts.*
 
-Talked to [[uncle]] about the certification track.
+Talked to [[a colleague]] about the release plan.
 
 ---
 
@@ -56,7 +56,7 @@ def test_today_note_exists_and_parses_filled_sections(tmp_path):
     assert result["today"]["exists"] is True
     sections = result["today"]["sections"]
     assert "Ship the dashboard rewrite" in sections["what_would_make_today_great"]
-    assert "uncle" in sections["notes_captures"]
+    assert "a colleague" in sections["notes_captures"]
     assert sections["amazing_things"] == ""
 
 

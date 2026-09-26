@@ -1,6 +1,6 @@
 """Keep the IV Walls scoreboard current while the dashboard is running.
 
-Unlike the chart pusher, this writes nothing outside the vault - no live study, no broker,
+Unlike the chart pusher, this writes nothing but local files - no live study, no broker,
 no order. So it starts with the app and stays on, rather than being a toggle that
 deliberately resets off on every restart.
 

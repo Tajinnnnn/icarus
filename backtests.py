@@ -1,5 +1,5 @@
-# Backtests page: visual replay of engine runs. The engine lives in the vault
-# (ai-trading-workflow/07 System/backtest) and runs on the system python3 with
+# Backtests page: visual replay of engine runs. The engine lives outside this
+# repo (see BACKTEST_DIR in config.py) and runs on the system python3 with
 # no third-party deps, so a RUN is a subprocess of visual_backtest.py there,
 # while listing runs, loading a run's trades and slicing bars are direct
 # imports of that same module (pure JSON/CSV reads).
