@@ -8,7 +8,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent
 # An allowlist prevents newly added private files from silently becoming public.
 PUBLIC_FILES = '''
-.gitignore README.md LICENSE pyproject.toml uv.lock crews.yaml
+.gitignore README.md SETUP-PROMPT.md LICENSE pyproject.toml uv.lock crews.yaml
 app.py config.py preferences.py automations.py journal.py notes.py js_api.py images.py outputs.py
 registry.py runner.py single_instance.py state.py tray.py window_chrome.py window_controls.py
 backtests.py tracker.py flow.py flow_pine.py flow_push.py freeflow.py freeflow_pine.py freeflow_push.py

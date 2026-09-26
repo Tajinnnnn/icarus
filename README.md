@@ -5,6 +5,8 @@ A local macOS dashboard for coding and AI work, personal notes and journals, and
 
 ## Run
 
+New here? Paste [SETUP-PROMPT.md](SETUP-PROMPT.md) into your AI coding assistant and it will walk you through installation, Obsidian, folders, and optional API keys step by step.
+
 Requires macOS, Python 3.12+, and [uv](https://docs.astral.sh/uv/). This is a native macOS app, not a hosted service. Cocoa/WebKit dependencies do not support Windows or Linux.
 
 ```sh
